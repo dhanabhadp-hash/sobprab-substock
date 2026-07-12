@@ -87,10 +87,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "สับสต๊อก | ระบบจัดการเบิกจ่ายยา รพ.สบปราบ" },
       {
         property: "og:description",
-        content: "ระบบจัดการคลังยา สแกนบาร์โค้ด เบิกจ่าย และรายงานเรียลไทม์",
+        content: "สับสต๊อก ระบบจัดการเบิกจ่ายยาคลังย่อย ห้องยา โรงพยาบาลสบปราบ สแกนบาร์โค้ด เบิกจ่าย รายงาน และแดชบอร์ดเรียลไทม์",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "สับสต๊อก | ระบบจัดการเบิกจ่ายยา รพ.สบปราบ" },
+      { name: "twitter:description", content: "สับสต๊อก ระบบจัดการเบิกจ่ายยาคลังย่อย ห้องยา โรงพยาบาลสบปราบ สแกนบาร์โค้ด เบิกจ่าย รายงาน และแดชบอร์ดเรียลไทม์" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b135cf7e-c44f-4eac-bba9-7fe3d76e4412/id-preview-1fc79a3d--11ee494f-9ecc-4a76-a09e-eae0dc0b1759.lovable.app-1783867563638.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b135cf7e-c44f-4eac-bba9-7fe3d76e4412/id-preview-1fc79a3d--11ee494f-9ecc-4a76-a09e-eae0dc0b1759.lovable.app-1783867563638.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
