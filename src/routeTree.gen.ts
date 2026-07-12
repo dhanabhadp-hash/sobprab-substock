@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
 import { Route as AppScanRouteImport } from './routes/_app.scan'
+import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
 
 const AuthRoute = AuthRouteImport.update({
@@ -34,6 +35,11 @@ const AppScanRoute = AppScanRouteImport.update({
   path: '/scan',
   getParentRoute: () => AppRoute,
 } as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppInventoryRoute = AppInventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
@@ -44,11 +50,13 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/auth': typeof AuthRoute
   '/inventory': typeof AppInventoryRoute
+  '/reports': typeof AppReportsRoute
   '/scan': typeof AppScanRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/inventory': typeof AppInventoryRoute
+  '/reports': typeof AppReportsRoute
   '/scan': typeof AppScanRoute
   '/': typeof AppIndexRoute
 }
@@ -57,19 +65,21 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/_app/inventory': typeof AppInventoryRoute
+  '/_app/reports': typeof AppReportsRoute
   '/_app/scan': typeof AppScanRoute
   '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/inventory' | '/scan'
+  fullPaths: '/' | '/auth' | '/inventory' | '/reports' | '/scan'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/inventory' | '/scan' | '/'
+  to: '/auth' | '/inventory' | '/reports' | '/scan' | '/'
   id:
     | '__root__'
     | '/_app'
     | '/auth'
     | '/_app/inventory'
+    | '/_app/reports'
     | '/_app/scan'
     | '/_app/'
   fileRoutesById: FileRoutesById
@@ -109,6 +119,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppScanRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/reports': {
+      id: '/_app/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/inventory': {
       id: '/_app/inventory'
       path: '/inventory'
@@ -121,12 +138,14 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppInventoryRoute: typeof AppInventoryRoute
+  AppReportsRoute: typeof AppReportsRoute
   AppScanRoute: typeof AppScanRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppInventoryRoute: AppInventoryRoute,
+  AppReportsRoute: AppReportsRoute,
   AppScanRoute: AppScanRoute,
   AppIndexRoute: AppIndexRoute,
 }
