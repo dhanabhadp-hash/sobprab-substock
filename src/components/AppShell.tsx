@@ -252,6 +252,10 @@ export function AppShell() {
         <main className="p-4 sm:p-6">
           <Outlet />
         </main>
+
+        <footer className="border-t border-border px-4 py-4 text-center text-xs text-muted-foreground sm:px-6">
+          © 2026 TNP Develop • pharmacy department of sobprab hospital
+        </footer>
       </div>
     </div>
   );
