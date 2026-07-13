@@ -40,6 +40,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/", label: "แดชบอร์ด", icon: LayoutDashboard, roles: ["admin", "user", "visitor"] },
   { to: "/scan", label: "สแกน / เบิกจ่าย", icon: ScanBarcode, roles: ["admin", "user"] },
   { to: "/inventory", label: "คลังยา", icon: Boxes, roles: ["admin", "user", "visitor"] },
+  { to: "/history", label: "ประวัติรับเข้า-จ่ายออก", icon: History, roles: ["admin", "user", "visitor"] },
   { to: "/reports", label: "รายงาน", icon: FileText, roles: ["admin", "user"] },
   { to: "/logs", label: "บันทึก / Audit", icon: ClipboardList, roles: ["admin"] },
   { to: "/users", label: "จัดการผู้ใช้", icon: Users, roles: ["admin"] },
