@@ -278,6 +278,26 @@ function ReportsPage() {
         <SummaryCard icon={AlertTriangle} label="ต้องเติมสต๊อก" value={formatNumber(lowCount)} />
       </div>
 
+      <Card className="border-primary/30 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <ClipboardList className="h-4 w-4 text-primary" />
+            ใบเบิกยาประจำสัปดาห์
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            สร้างใบเบิกเวชภัณฑ์ (รูปแบบราชการ) โดยดึงเฉพาะรายการยาที่คงเหลือต่ำกว่าหรือใกล้จุดสต๊อกขั้นต่ำ —
+            ปัจจุบัน <span className="font-semibold text-foreground">{formatNumber(lowCount)}</span> รายการ
+          </p>
+          <Button onClick={printRequisition} disabled={lowCount === 0}>
+            <Printer className="h-4 w-4" />
+            พิมพ์ใบเบิก / บันทึก PDF
+          </Button>
+        </CardContent>
+      </Card>
+
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
