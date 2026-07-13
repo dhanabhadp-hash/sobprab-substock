@@ -17,6 +17,7 @@ import { Route as AppScanRouteImport } from './routes/_app.scan'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppLogsRouteImport } from './routes/_app.logs'
 import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
+import { Route as AppHistoryRouteImport } from './routes/_app.history'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -57,10 +58,16 @@ const AppInventoryRoute = AppInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AppRoute,
 } as any)
+const AppHistoryRoute = AppHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/auth': typeof AuthRoute
+  '/history': typeof AppHistoryRoute
   '/inventory': typeof AppInventoryRoute
   '/logs': typeof AppLogsRoute
   '/reports': typeof AppReportsRoute
@@ -69,6 +76,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/history': typeof AppHistoryRoute
   '/inventory': typeof AppInventoryRoute
   '/logs': typeof AppLogsRoute
   '/reports': typeof AppReportsRoute
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_app/history': typeof AppHistoryRoute
   '/_app/inventory': typeof AppInventoryRoute
   '/_app/logs': typeof AppLogsRoute
   '/_app/reports': typeof AppReportsRoute
@@ -92,17 +101,27 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/history'
     | '/inventory'
     | '/logs'
     | '/reports'
     | '/scan'
     | '/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/inventory' | '/logs' | '/reports' | '/scan' | '/users' | '/'
+  to:
+    | '/auth'
+    | '/history'
+    | '/inventory'
+    | '/logs'
+    | '/reports'
+    | '/scan'
+    | '/users'
+    | '/'
   id:
     | '__root__'
     | '/_app'
     | '/auth'
+    | '/_app/history'
     | '/_app/inventory'
     | '/_app/logs'
     | '/_app/reports'
@@ -174,10 +193,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/history': {
+      id: '/_app/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppHistoryRoute: typeof AppHistoryRoute
   AppInventoryRoute: typeof AppInventoryRoute
   AppLogsRoute: typeof AppLogsRoute
   AppReportsRoute: typeof AppReportsRoute
@@ -187,6 +214,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppHistoryRoute: AppHistoryRoute,
   AppInventoryRoute: AppInventoryRoute,
   AppLogsRoute: AppLogsRoute,
   AppReportsRoute: AppReportsRoute,

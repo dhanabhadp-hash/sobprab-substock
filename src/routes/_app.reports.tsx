@@ -1,16 +1,37 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ExcelJS from "exceljs";
-import { FileSpreadsheet, Download, Loader2, Boxes, ArrowLeftRight, AlertTriangle, Printer, ClipboardList } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  FileSpreadsheet,
+  Download,
+  Loader2,
+  Boxes,
+  ArrowLeftRight,
+  AlertTriangle,
+  Printer,
+  ClipboardList,
+  History,
+  RotateCcw,
+  Trash2,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMedicines } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
 import { formatNumber, formatCurrency, formatDateTime, stockStatus, TX_TYPE_LABELS } from "@/lib/format";
+import {
+  buildRequisitionItems,
+  printRequisitionDoc,
+  DEFAULT_DEPARTMENT,
+  DEFAULT_PURPOSE,
+  type RequisitionItem,
+} from "@/lib/requisition";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_app/reports")({
   component: ReportsPage,
@@ -38,13 +59,51 @@ function styleHeader(row: ExcelJS.Row) {
   });
 }
 
+interface RequisitionRow {
+  id: string;
+  doc_date: string;
+  department: string;
+  purpose: string;
+  requester_name: string | null;
+  item_count: number;
+  total_amount: number;
+  items: RequisitionItem[];
+  created_at: string;
+}
+
 function ReportsPage() {
   const { data: medicines } = useMedicines();
-  const { profile } = useAuth();
+  const { profile, user, isAdmin } = useAuth();
+  const qc = useQueryClient();
   const today = new Date().toISOString().slice(0, 10);
   const [from, setFrom] = useState(new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10));
   const [to, setTo] = useState(today);
   const [busy, setBusy] = useState<string | null>(null);
+
+  const { data: reqHistory, isLoading: reqLoading } = useQuery({
+    queryKey: ["requisitions"],
+    queryFn: async (): Promise<RequisitionRow[]> => {
+      const { data, error } = await supabase
+        .from("requisitions")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data as unknown as RequisitionRow[];
+    },
+  });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("requisitions-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "requisitions" }, () => {
+        qc.invalidateQueries({ queryKey: ["requisitions"] });
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [qc]);
 
   const exportInventory = async () => {
     setBusy("inventory");
@@ -136,134 +195,64 @@ function ReportsPage() {
     }
   };
 
-  const printRequisition = () => {
-    const items = (medicines ?? [])
+  const createRequisition = async () => {
+    const lowMeds = (medicines ?? [])
       .filter((m) => stockStatus(m) !== "ok")
       .sort((a, b) => a.drug_name.localeCompare(b.drug_name, "th"));
 
-    if (items.length === 0) {
+    if (lowMeds.length === 0) {
       toast.info("ไม่มีรายการยาที่ต่ำกว่าหรือใกล้จุดสต๊อกขั้นต่ำ");
       return;
     }
 
-    const now = new Date();
-    const thMonths = [
-      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม",
-    ];
-    const day = now.getDate();
-    const month = thMonths[now.getMonth()];
-    const year = now.getFullYear() + 543;
-
+    const items = buildRequisitionItems(lowMeds);
     const requester = profile?.full_name || profile?.username || "";
-    const esc = (s: string) =>
-      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const num = (n: number, d = 0) =>
-      n.toLocaleString("th-TH", { minimumFractionDigits: d, maximumFractionDigits: d });
+    const totalAmount = items.reduce((s, it) => s + it.total, 0);
 
-    const rows = items
-      .map((m, i) => {
-        const reorder = Math.max(Math.ceil(m.minimum_stock - m.current_stock), 0);
-        const price = m.price_per_unit > 0 ? num(m.price_per_unit, 2) : "";
-        const total = m.price_per_unit > 0 && reorder > 0 ? num(reorder * m.price_per_unit, 2) : "";
-        const nameParts = [m.drug_name, m.strength, m.form].filter(Boolean).join(" ");
-        return `<tr>
-          <td class="c">${i + 1}</td>
-          <td>${esc(nameParts)}</td>
-          <td class="c"></td>
-          <td class="c">${num(m.current_stock)}</td>
-          <td class="c">${reorder > 0 ? num(reorder) : ""}</td>
-          <td class="c"></td>
-          <td class="r">${price}</td>
-          <td class="r">${total}</td>
-        </tr>`;
-      })
-      .join("");
-
-    const html = `<!doctype html>
-<html lang="th"><head><meta charset="utf-8" />
-<title>ใบเบิกเวชภัณฑ์</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<style>
-  * { box-sizing: border-box; }
-  @page { size: A4; margin: 1.4cm 1.2cm; }
-  body { font-family: 'IBM Plex Sans Thai', sans-serif; color: #000; font-size: 13px; margin: 0; }
-  h1 { text-align: center; font-size: 20px; margin: 0 0 4px; }
-  .top { display: flex; justify-content: flex-end; font-size: 13px; margin-bottom: 6px; }
-  .meta { line-height: 2; margin-bottom: 8px; }
-  .dot { display: inline-block; border-bottom: 1px dotted #000; min-width: 60px; text-align: center; padding: 0 6px; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { border: 1px solid #000; padding: 4px 6px; font-size: 12px; vertical-align: middle; }
-  th { text-align: center; font-weight: 600; }
-  td.c { text-align: center; }
-  td.r { text-align: right; }
-  tbody td { height: 26px; }
-  .signs { display: flex; flex-wrap: wrap; margin-top: 24px; break-inside: avoid; page-break-inside: avoid; }
-  .sign { width: 50%; padding: 10px 8px 18px; text-align: center; }
-  .sline { border-bottom: 1px dotted #000; display: inline-block; min-width: 220px; }
-  .srole { margin-left: 6px; }
-  .sname { margin-top: 6px; }
-  .spos { margin-top: 4px; }
-  thead { display: table-header-group; }
-  tr { break-inside: avoid; }
-</style></head>
-<body>
-  <div class="top">เลขที่ <span class="dot">&nbsp;</span></div>
-  <h1>ใบเบิกเวชภัณฑ์</h1>
-  <div class="meta">
-    สำหรับโรงพยาบาล / ฝ่าย <span class="dot">เภสัชกรรมและคุ้มครองผู้บริโภค</span>
-    เพื่อใช้ในงาน <span class="dot">บริการผู้ป่วยที่เข้ารับการรักษา</span><br />
-    ลงวันที่ <span class="dot">${day}</span> เดือน <span class="dot">${month}</span> พ.ศ. <span class="dot">${year}</span>
-  </div>
-  <table>
-    <thead>
-      <tr>
-        <th style="width:6%">ลำดับ</th>
-        <th>รายการยาที่ต้องเบิก</th>
-        <th style="width:9%">จำนวนจ่าย<br/>ต่อเดือน</th>
-        <th style="width:9%">จำนวน<br/>คงเหลือ</th>
-        <th style="width:10%">จำนวนที่จะ<br/>เบิกใหม่</th>
-        <th style="width:10%">จำนวน<br/>อนุมัติจ่าย</th>
-        <th style="width:11%">ราคา/หน่วย</th>
-        <th style="width:12%">ราคารวม</th>
-      </tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <div class="signs">
-    <div class="sign">
-      ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้ขอเบิก</span>
-      <div class="sname">( ${esc(requester)} )</div>
-      <div class="spos">ตำแหน่ง <span class="sline" style="min-width:150px">&nbsp;</span></div>
-    </div>
-    <div class="sign">
-      ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้สั่งจ่าย</span>
-      <div class="sname">( นายกลวัชร วะเท )</div>
-      <div class="spos">ตำแหน่ง เภสัชกรชำนาญการ</div>
-    </div>
-    <div class="sign">
-      ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้รับ</span>
-      <div class="sname">( ${esc(requester)} )</div>
-      <div class="spos">ตำแหน่ง <span class="sline" style="min-width:150px">&nbsp;</span></div>
-    </div>
-    <div class="sign">
-      ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้จ่าย</span>
-      <div class="sname">( นางสาวกนกวรรณ ศรีจันทร์ )</div>
-      <div class="spos">ตำแหน่ง จพ.เภสัชปฏิบัติงาน</div>
-    </div>
-  </div>
-  <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 400); };</script>
-</body></html>`;
-
-    const w = window.open("", "_blank");
-    if (!w) {
+    const ok = printRequisitionDoc({
+      doc_date: today,
+      department: DEFAULT_DEPARTMENT,
+      purpose: DEFAULT_PURPOSE,
+      requester_name: requester,
+      items,
+    });
+    if (!ok) {
       toast.error("ไม่สามารถเปิดหน้าต่างพิมพ์ได้ กรุณาอนุญาต popup");
       return;
     }
-    w.document.write(html);
-    w.document.close();
+
+    const { error } = await supabase.from("requisitions").insert({
+      doc_date: today,
+      department: DEFAULT_DEPARTMENT,
+      purpose: DEFAULT_PURPOSE,
+      requester_id: user?.id ?? null,
+      requester_name: requester,
+      item_count: items.length,
+      total_amount: totalAmount,
+      items: items as unknown as any,
+    });
+    if (error) {
+      toast.error("บันทึกประวัติใบเบิกไม่สำเร็จ", { description: error.message });
+    } else {
+      toast.success("สร้างและบันทึกใบเบิกเรียบร้อย");
+    }
+  };
+
+  const reprint = (r: RequisitionRow) => {
+    const ok = printRequisitionDoc({
+      doc_date: r.doc_date,
+      department: r.department,
+      purpose: r.purpose,
+      requester_name: r.requester_name ?? "",
+      items: r.items ?? [],
+    });
+    if (!ok) toast.error("กรุณาอนุญาต popup เพื่อพิมพ์");
+  };
+
+  const deleteReq = async (id: string) => {
+    const { error } = await supabase.from("requisitions").delete().eq("id", id);
+    if (error) toast.error("ลบไม่สำเร็จ", { description: error.message });
+    else toast.success("ลบใบเบิกแล้ว");
   };
 
   const list = medicines ?? [];
@@ -289,14 +278,73 @@ function ReportsPage() {
           <p className="text-sm text-muted-foreground">
             สร้างใบเบิกเวชภัณฑ์ (รูปแบบราชการ) โดยดึงเฉพาะรายการยาที่คงเหลือต่ำกว่าหรือใกล้จุดสต๊อกขั้นต่ำ —
             ปัจจุบัน <span className="font-semibold text-foreground">{formatNumber(lowCount)}</span> รายการ
+            (ระบบจะบันทึกเป็นประวัติให้อัตโนมัติ)
           </p>
-          <Button onClick={printRequisition} disabled={lowCount === 0}>
+          <Button onClick={createRequisition} disabled={lowCount === 0}>
             <Printer className="h-4 w-4" />
             พิมพ์ใบเบิก / บันทึก PDF
           </Button>
         </CardContent>
       </Card>
 
+      {/* Requisition history */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <History className="h-4 w-4 text-primary" />
+            ประวัติใบเบิกประจำสัปดาห์ย้อนหลัง
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+          {reqLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-14 w-full" />
+              ))}
+            </div>
+          ) : (reqHistory ?? []).length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-10 text-center text-muted-foreground">
+              <ClipboardList className="h-9 w-9 opacity-50" />
+              <p className="text-sm">ยังไม่มีประวัติใบเบิก</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {(reqHistory ?? []).map((r) => (
+                <div
+                  key={r.id}
+                  className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">
+                      ใบเบิก {formatNumber(r.item_count)} รายการ
+                      <span className="ml-2 font-normal text-muted-foreground">
+                        มูลค่า {formatCurrency(r.total_amount)}
+                      </span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      โดย {r.requester_name ?? "-"} • {formatDateTime(r.created_at)}
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => reprint(r)}>
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    พิมพ์ซ้ำ
+                  </Button>
+                  {isAdmin && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => deleteReq(r.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

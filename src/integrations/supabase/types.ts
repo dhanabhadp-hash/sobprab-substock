@@ -86,6 +86,45 @@ export type Database = {
         }
         Relationships: []
       }
+      requisitions: {
+        Row: {
+          created_at: string
+          department: string
+          doc_date: string
+          id: string
+          item_count: number
+          items: Json
+          purpose: string
+          requester_id: string | null
+          requester_name: string | null
+          total_amount: number
+        }
+        Insert: {
+          created_at?: string
+          department?: string
+          doc_date?: string
+          id?: string
+          item_count?: number
+          items?: Json
+          purpose?: string
+          requester_id?: string | null
+          requester_name?: string | null
+          total_amount?: number
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          doc_date?: string
+          id?: string
+          item_count?: number
+          items?: Json
+          purpose?: string
+          requester_id?: string | null
+          requester_name?: string | null
+          total_amount?: number
+        }
+        Relationships: []
+      }
       system_logs: {
         Row: {
           action: string
