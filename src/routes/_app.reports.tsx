@@ -40,6 +40,7 @@ function styleHeader(row: ExcelJS.Row) {
 
 function ReportsPage() {
   const { data: medicines } = useMedicines();
+  const { profile } = useAuth();
   const today = new Date().toISOString().slice(0, 10);
   const [from, setFrom] = useState(new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10));
   const [to, setTo] = useState(today);
