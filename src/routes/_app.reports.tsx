@@ -208,6 +208,7 @@ function ReportsPage() {
 
     const items = buildRequisitionItems(lowMeds);
     const requester = profile?.full_name || profile?.username || "";
+    const requesterPosition = profile?.position || "";
     const totalAmount = items.reduce((s, it) => s + it.total, 0);
 
     const ok = printRequisitionDoc({
@@ -215,6 +216,7 @@ function ReportsPage() {
       department: DEFAULT_DEPARTMENT,
       purpose: DEFAULT_PURPOSE,
       requester_name: requester,
+      requester_position: requesterPosition,
       items,
     });
     if (!ok) {
@@ -228,6 +230,7 @@ function ReportsPage() {
       purpose: DEFAULT_PURPOSE,
       requester_id: user?.id ?? null,
       requester_name: requester,
+      requester_position: requesterPosition || null,
       item_count: items.length,
       total_amount: totalAmount,
       items: items as unknown as any,
@@ -245,6 +248,7 @@ function ReportsPage() {
       department: r.department,
       purpose: r.purpose,
       requester_name: r.requester_name ?? "",
+      requester_position: r.requester_position ?? "",
       items: r.items ?? [],
     });
     if (!ok) toast.error("กรุณาอนุญาต popup เพื่อพิมพ์");
