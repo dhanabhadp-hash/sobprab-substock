@@ -113,8 +113,8 @@ export function printRequisitionDoc(doc: RequisitionDoc): boolean {
   <h1>ใบเบิกเวชภัณฑ์</h1>
   <div class="meta">
     สำหรับโรงพยาบาล / ฝ่าย <span class="dot">${esc(doc.department)}</span>
-    เพื่อใช้ในงาน <span class="dot">${esc(doc.purpose)}</span><br />
-    ลงวันที่ <span class="dot">${day}</span> เดือน <span class="dot">${month}</span> พ.ศ. <span class="dot">${year}</span>
+    เพื่อใช้ในงาน <span class="dot">${esc(doc.purpose)}</span>
+    <div class="datemeta">ลงวันที่ <span class="dot">${day}</span> เดือน <span class="dot">${month}</span> พ.ศ. <span class="dot">${year}</span></div>
   </div>
   <table>
     <thead>
