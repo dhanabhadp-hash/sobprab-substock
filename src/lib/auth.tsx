@@ -35,6 +35,7 @@ interface AuthContextValue {
     password: string,
     fullName: string,
     username: string,
+    position?: string,
   ) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
