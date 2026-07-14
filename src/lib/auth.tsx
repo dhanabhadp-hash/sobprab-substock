@@ -15,6 +15,7 @@ interface Profile {
   id: string;
   full_name: string | null;
   username: string | null;
+  position: string | null;
 }
 
 interface AuthContextValue {
