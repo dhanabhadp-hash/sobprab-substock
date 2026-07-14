@@ -122,6 +122,24 @@ function InventoryPage() {
     setDialogOpen(true);
   };
 
+  const openDuplicate = (m: Medicine) => {
+    setEditing(null);
+    setForm({
+      product_code: m.product_code,
+      drug_name: m.drug_name,
+      strength: m.strength ?? "",
+      form: m.form ?? "",
+      unit: m.unit,
+      barcode: "",
+      price_per_unit: String(m.price_per_unit),
+      usage_rate: String(m.usage_rate),
+      minimum_stock: String(m.minimum_stock),
+      current_stock: "0",
+    });
+    setDialogOpen(true);
+    toast.info("คัดลอกข้อมูลยาแล้ว", { description: "ใส่บาร์โค้ดใหม่ (บริษัทอื่น) แล้วบันทึกเป็นรายการใหม่" });
+  };
+
   const handleSave = async () => {
     if (!form.product_code.trim() || !form.drug_name.trim()) {
       toast.error("กรุณากรอกรหัสยาและชื่อยา");
