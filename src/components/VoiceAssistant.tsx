@@ -1,0 +1,206 @@
+import { useCallback, useRef, useState } from "react";
+import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { Mic, MicOff, Loader2, Check, Pencil, X, Sparkles } from "lucide-react";
+import { parseVoiceCommand, type ParsedVoiceCommand } from "@/lib/voice.functions";
+import { formatNumber, type Medicine } from "@/lib/format";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+type TxType = "disburse" | "receive" | "adjust";
+
+const ACTION_LABEL: Record<TxType, string> = {
+  disburse: "เบิกจ่าย (ตัดสต๊อก)",
+  receive: "รับเข้า (เพิ่มสต๊อก)",
+  adjust: "ปรับยอดคงเหลือ",
+};
+
+interface Review {
+  action: TxType;
+  medicine: Medicine;
+  quantity: number;
+  transcript: string;
+}
+
+interface Props {
+  medicines: Medicine[];
+  onConfirm: (action: TxType, medicine: Medicine, quantity: number) => void;
+  onEdit: (medicine: Medicine) => void;
+}
+
+function matchMedicine(cmd: ParsedVoiceCommand, medicines: Medicine[]): Medicine | null {
+  const q = `${cmd.drug} ${cmd.form}`.toLowerCase().trim();
+  const drug = cmd.drug.toLowerCase().trim();
+  if (!drug) return null;
+  const scored = medicines
+    .map((m) => {
+      const hay = `${m.drug_name} ${m.strength ?? ""} ${m.form ?? ""}`.toLowerCase();
+      let score = 0;
+      if (hay.includes(drug)) score += 3;
+      drug.split(/\s+/).forEach((w) => {
+        if (w.length > 1 && hay.includes(w)) score += 1;
+      });
+      if (cmd.form && hay.includes(cmd.form.toLowerCase())) score += 2;
+      return { m, score };
+    })
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return scored[0]?.m ?? null;
+}
+
+export function VoiceAssistant({ medicines, onConfirm, onEdit }: Props) {
+  const [listening, setListening] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [review, setReview] = useState<Review | null>(null);
+  const recognitionRef = useRef<any>(null);
+  const parse = useServerFn(parseVoiceCommand);
+
+  const handleTranscript = useCallback(
+    async (transcript: string) => {
+      setProcessing(true);
+      try {
+        const cmd = await parse({ data: { transcript } });
+        if (cmd.action === "unknown" || !cmd.drug) {
+          toast.error("ไม่เข้าใจคำสั่ง", { description: `"${transcript}" — ลองพูดใหม่อีกครั้ง` });
+          return;
+        }
+        const med = matchMedicine(cmd, medicines);
+        if (!med) {
+          toast.error("ไม่พบยาในระบบ", { description: `ค้นหา: ${cmd.drug} ${cmd.form}` });
+          return;
+        }
+        setReview({
+          action: cmd.action,
+          medicine: med,
+          quantity: cmd.quantity ?? 1,
+          transcript,
+        });
+      } catch (e: any) {
+        toast.error("ประมวลผลเสียงไม่สำเร็จ", { description: e?.message });
+      } finally {
+        setProcessing(false);
+      }
+    },
+    [medicines, parse],
+  );
+
+  const startListening = useCallback(() => {
+    const SR =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) {
+      toast.error("อุปกรณ์นี้ไม่รองรับการสั่งงานด้วยเสียง", {
+        description: "กรุณาใช้ Chrome บนมือถือหรือคอมพิวเตอร์",
+      });
+      return;
+    }
+    const rec = new SR();
+    rec.lang = "th-TH";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    rec.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript as string;
+      handleTranscript(transcript);
+    };
+    rec.onerror = (event: any) => {
+      if (event.error !== "aborted" && event.error !== "no-speech") {
+        toast.error("ไมโครโฟนขัดข้อง", { description: event.error });
+      }
+    };
+    rec.onend = () => setListening(false);
+    recognitionRef.current = rec;
+    setListening(true);
+    rec.start();
+  }, [handleTranscript]);
+
+  const stopListening = useCallback(() => {
+    recognitionRef.current?.stop();
+    setListening(false);
+  }, []);
+
+  const confirmReview = () => {
+    if (!review) return;
+    onConfirm(review.action, review.medicine, review.quantity);
+    toast.success("เพิ่มลงตะกร้าแล้ว", {
+      description: `${review.medicine.drug_name} ${formatNumber(review.quantity)} ${review.medicine.unit}`,
+    });
+    setReview(null);
+  };
+
+  const editReview = () => {
+    if (!review) return;
+    onEdit(review.medicine);
+    setReview(null);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-col items-center gap-2 py-2">
+        <Button
+          type="button"
+          size="lg"
+          variant={listening ? "destructive" : "default"}
+          onClick={listening ? stopListening : startListening}
+          disabled={processing}
+          className="h-16 w-16 rounded-full p-0"
+        >
+          {processing ? (
+            <Loader2 className="h-6 w-6 animate-spin" />
+          ) : listening ? (
+            <MicOff className="h-6 w-6" />
+          ) : (
+            <Mic className="h-6 w-6" />
+          )}
+        </Button>
+        <p className="text-center text-xs text-muted-foreground">
+          {listening
+            ? "กำลังฟัง... พูดคำสั่งได้เลย"
+            : processing
+              ? "กำลังประมวลผล..."
+              : 'แตะเพื่อสั่งงานด้วยเสียง เช่น "ตัดพาราไซรัป 50 ขวด"'}
+        </p>
+      </div>
+
+      {review && (
+        <Card className="border-primary/40 bg-primary/5">
+          <CardContent className="space-y-3 p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-primary">
+              <Sparkles className="h-4 w-4" />
+              ทวนรายการจากเสียง
+            </div>
+            <p className="text-xs italic text-muted-foreground">"{review.transcript}"</p>
+            <div className="rounded-lg border border-border bg-background p-3">
+              <div className="flex items-center justify-between gap-2">
+                <Badge variant="secondary">{ACTION_LABEL[review.action]}</Badge>
+                <span className="text-sm font-bold tabular-nums">
+                  {formatNumber(review.quantity)} {review.medicine.unit}
+                </span>
+              </div>
+              <p className="mt-2 font-medium">{review.medicine.drug_name}</p>
+              <p className="text-xs text-muted-foreground">
+                {review.medicine.product_code} • {review.medicine.strength} • {review.medicine.form}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                คงเหลือปัจจุบัน {formatNumber(review.medicine.current_stock)} {review.medicine.unit}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setReview(null)}>
+                <X className="h-4 w-4" />
+                ยกเลิก
+              </Button>
+              <Button variant="outline" size="sm" className="flex-1" onClick={editReview}>
+                <Pencil className="h-4 w-4" />
+                แก้ไข
+              </Button>
+              <Button size="sm" className="flex-1" onClick={confirmReview}>
+                <Check className="h-4 w-4" />
+                ยืนยัน
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
