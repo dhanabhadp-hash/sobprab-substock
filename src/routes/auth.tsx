@@ -155,6 +155,15 @@ function AuthPage() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="reg-position">ตำแหน่ง</Label>
+                  <Input
+                    id="reg-position"
+                    placeholder="เช่น เภสัชกรชำนาญการ / จพ.เภสัชกรรม"
+                    value={regPosition}
+                    onChange={(e) => setRegPosition(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="reg-email">อีเมล</Label>
                   <Input
                     id="reg-email"
