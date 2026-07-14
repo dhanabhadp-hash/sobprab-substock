@@ -14,6 +14,7 @@ export interface RequisitionDoc {
   department: string;
   purpose: string;
   requester_name: string;
+  requester_position?: string;
   items: RequisitionItem[];
 }
 
