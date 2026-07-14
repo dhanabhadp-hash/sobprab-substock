@@ -65,6 +65,7 @@ interface RequisitionRow {
   department: string;
   purpose: string;
   requester_name: string | null;
+  requester_position: string | null;
   item_count: number;
   total_amount: number;
   items: RequisitionItem[];
