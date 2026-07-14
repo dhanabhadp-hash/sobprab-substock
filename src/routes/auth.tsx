@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Pill, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import logoKnifePill from "@/assets/logo-knife-pill.png";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -25,6 +26,7 @@ function AuthPage() {
   const [regPassword, setRegPassword] = useState("");
   const [regName, setRegName] = useState("");
   const [regUsername, setRegUsername] = useState("");
+  const [regPosition, setRegPosition] = useState("");
 
   useEffect(() => {
     if (!loading && session) {
@@ -53,7 +55,13 @@ function AuthPage() {
       return;
     }
     setSubmitting(true);
-    const { error } = await signUp(regEmail.trim(), regPassword, regName.trim(), regUsername.trim());
+    const { error } = await signUp(
+      regEmail.trim(),
+      regPassword,
+      regName.trim(),
+      regUsername.trim(),
+      regPosition.trim(),
+    );
     setSubmitting(false);
     if (error) {
       toast.error("สมัครสมาชิกไม่สำเร็จ", { description: mapError(error) });
@@ -67,8 +75,14 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-secondary via-background to-secondary px-4 py-10">
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="gradient-brand mb-3 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg shadow-primary/20">
-            <Pill className="h-8 w-8 text-primary-foreground" strokeWidth={2.2} />
+          <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-2xl bg-card shadow-lg shadow-primary/20 ring-1 ring-primary/10">
+            <img
+              src={logoKnifePill}
+              alt="โลโก้สับสต๊อก มีดสับแคปซูลยา"
+              width={80}
+              height={80}
+              className="h-16 w-16 object-contain"
+            />
           </div>
           <h1 className="text-2xl font-bold text-foreground">
             สับสต๊อก <span className="text-gradient-brand">🔪</span>
@@ -138,6 +152,15 @@ function AuthPage() {
                     placeholder="somying"
                     value={regUsername}
                     onChange={(e) => setRegUsername(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reg-position">ตำแหน่ง</Label>
+                  <Input
+                    id="reg-position"
+                    placeholder="เช่น เภสัชกรชำนาญการ / จพ.เภสัชกรรม"
+                    value={regPosition}
+                    onChange={(e) => setRegPosition(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">

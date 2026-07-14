@@ -14,6 +14,7 @@ export interface RequisitionDoc {
   department: string;
   purpose: string;
   requester_name: string;
+  requester_position?: string;
   items: RequisitionItem[];
 }
 
@@ -71,6 +72,11 @@ export function printRequisitionDoc(doc: RequisitionDoc): boolean {
     .join("");
 
   const requester = doc.requester_name || "";
+  const requesterPos = doc.requester_position || "";
+  const posCell = (pos: string) =>
+    pos
+      ? `ตำแหน่ง <span style="border-bottom:1px dotted #000;padding:0 4px">${esc(pos)}</span>`
+      : `ตำแหน่ง <span class="sline" style="min-width:150px">&nbsp;</span>`;
 
   const html = `<!doctype html>
 <html lang="th"><head><meta charset="utf-8" />
@@ -86,6 +92,7 @@ export function printRequisitionDoc(doc: RequisitionDoc): boolean {
   .top { display: flex; justify-content: flex-end; font-size: 13px; margin-bottom: 6px; }
   .meta { line-height: 2; margin-bottom: 8px; }
   .dot { display: inline-block; border-bottom: 1px dotted #000; min-width: 60px; text-align: center; padding: 0 6px; }
+  .datemeta { text-align: center; margin-top: 4px; }
   table { width: 100%; border-collapse: collapse; }
   th, td { border: 1px solid #000; padding: 4px 6px; font-size: 12px; vertical-align: middle; }
   th { text-align: center; font-weight: 600; }
@@ -106,8 +113,8 @@ export function printRequisitionDoc(doc: RequisitionDoc): boolean {
   <h1>ใบเบิกเวชภัณฑ์</h1>
   <div class="meta">
     สำหรับโรงพยาบาล / ฝ่าย <span class="dot">${esc(doc.department)}</span>
-    เพื่อใช้ในงาน <span class="dot">${esc(doc.purpose)}</span><br />
-    ลงวันที่ <span class="dot">${day}</span> เดือน <span class="dot">${month}</span> พ.ศ. <span class="dot">${year}</span>
+    เพื่อใช้ในงาน <span class="dot">${esc(doc.purpose)}</span>
+    <div class="datemeta">ลงวันที่ <span class="dot">${day}</span> เดือน <span class="dot">${month}</span> พ.ศ. <span class="dot">${year}</span></div>
   </div>
   <table>
     <thead>
@@ -128,7 +135,7 @@ export function printRequisitionDoc(doc: RequisitionDoc): boolean {
     <div class="sign">
       ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้ขอเบิก</span>
       <div class="sname">( ${esc(requester)} )</div>
-      <div class="spos">ตำแหน่ง <span class="sline" style="min-width:150px">&nbsp;</span></div>
+      <div class="spos">${posCell(requesterPos)}</div>
     </div>
     <div class="sign">
       ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้สั่งจ่าย</span>
@@ -138,7 +145,7 @@ export function printRequisitionDoc(doc: RequisitionDoc): boolean {
     <div class="sign">
       ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้รับ</span>
       <div class="sname">( ${esc(requester)} )</div>
-      <div class="spos">ตำแหน่ง <span class="sline" style="min-width:150px">&nbsp;</span></div>
+      <div class="spos">${posCell(requesterPos)}</div>
     </div>
     <div class="sign">
       ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้จ่าย</span>

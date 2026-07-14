@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, Pencil, Loader2, PackageX } from "lucide-react";
+import { Search, Plus, Pencil, Copy, Loader2, PackageX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useMedicines } from "@/lib/queries";
@@ -120,6 +120,24 @@ function InventoryPage() {
       current_stock: String(m.current_stock),
     });
     setDialogOpen(true);
+  };
+
+  const openDuplicate = (m: Medicine) => {
+    setEditing(null);
+    setForm({
+      product_code: m.product_code,
+      drug_name: m.drug_name,
+      strength: m.strength ?? "",
+      form: m.form ?? "",
+      unit: m.unit,
+      barcode: "",
+      price_per_unit: String(m.price_per_unit),
+      usage_rate: String(m.usage_rate),
+      minimum_stock: String(m.minimum_stock),
+      current_stock: "0",
+    });
+    setDialogOpen(true);
+    toast.info("คัดลอกข้อมูลยาแล้ว", { description: "ใส่บาร์โค้ดใหม่ (บริษัทอื่น) แล้วบันทึกเป็นรายการใหม่" });
   };
 
   const handleSave = async () => {
@@ -273,9 +291,14 @@ function InventoryPage() {
                         </TableCell>
                         {isAdmin && (
                           <TableCell>
-                            <Button variant="ghost" size="icon" onClick={() => openEdit(m)}>
-                              <Pencil className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Button variant="ghost" size="icon" onClick={() => openDuplicate(m)} title="คัดลอก (บาร์โค้ดใหม่)">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => openEdit(m)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </TableCell>
                         )}
                       </TableRow>

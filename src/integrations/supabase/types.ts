@@ -67,6 +67,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          position: string | null
           updated_at: string
           username: string | null
         }
@@ -74,6 +75,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          position?: string | null
           updated_at?: string
           username?: string | null
         }
@@ -81,6 +83,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          position?: string | null
           updated_at?: string
           username?: string | null
         }
@@ -97,6 +100,7 @@ export type Database = {
           purpose: string
           requester_id: string | null
           requester_name: string | null
+          requester_position: string | null
           total_amount: number
         }
         Insert: {
@@ -109,6 +113,7 @@ export type Database = {
           purpose?: string
           requester_id?: string | null
           requester_name?: string | null
+          requester_position?: string | null
           total_amount?: number
         }
         Update: {
@@ -121,6 +126,7 @@ export type Database = {
           purpose?: string
           requester_id?: string | null
           requester_name?: string | null
+          requester_position?: string | null
           total_amount?: number
         }
         Relationships: []

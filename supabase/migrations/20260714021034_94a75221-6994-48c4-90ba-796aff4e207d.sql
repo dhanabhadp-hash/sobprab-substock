@@ -1,0 +1,1 @@
+ALTER TABLE public.requisitions ADD COLUMN IF NOT EXISTS requester_position text;

@@ -15,6 +15,7 @@ interface Profile {
   id: string;
   full_name: string | null;
   username: string | null;
+  position: string | null;
 }
 
 interface AuthContextValue {
@@ -34,6 +35,7 @@ interface AuthContextValue {
     password: string,
     fullName: string,
     username: string,
+    position?: string,
   ) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -49,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUserData = useCallback(async (userId: string) => {
     const [{ data: profileData }, { data: rolesData }] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, username").eq("id", userId).maybeSingle(),
+      supabase.from("profiles").select("id, full_name, username, position").eq("id", userId).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", userId),
     ]);
     setProfile(profileData ?? null);
@@ -85,13 +87,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = useCallback(
-    async (email: string, password: string, fullName: string, username: string) => {
+    async (
+      email: string,
+      password: string,
+      fullName: string,
+      username: string,
+      position?: string,
+    ) => {
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: window.location.origin,
-          data: { full_name: fullName, username },
+          data: { full_name: fullName, username, position: position ?? "" },
         },
       });
       if (error) return { error: error.message };

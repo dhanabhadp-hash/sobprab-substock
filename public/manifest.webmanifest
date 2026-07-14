@@ -1,0 +1,26 @@
+{
+  "name": "สับสต๊อก - ระบบจัดการเบิกจ่ายยา รพ.สบปราบ",
+  "short_name": "สับสต๊อก",
+  "description": "ระบบจัดการเบิกจ่ายยาคลังย่อย ห้องยา โรงพยาบาลสบปราบ",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#0f766e",
+  "lang": "th",
+  "icons": [
+    {
+      "src": "/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
