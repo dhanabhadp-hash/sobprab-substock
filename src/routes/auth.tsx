@@ -26,6 +26,7 @@ function AuthPage() {
   const [regPassword, setRegPassword] = useState("");
   const [regName, setRegName] = useState("");
   const [regUsername, setRegUsername] = useState("");
+  const [regPosition, setRegPosition] = useState("");
 
   useEffect(() => {
     if (!loading && session) {
