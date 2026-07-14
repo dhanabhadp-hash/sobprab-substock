@@ -84,6 +84,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "สับสต๊อก ระบบจัดการเบิกจ่ายยาคลังย่อย ห้องยา โรงพยาบาลสบปราบ สแกนบาร์โค้ด เบิกจ่าย รายงาน และแดชบอร์ดเรียลไทม์",
       },
       { name: "author", content: "รพ.สบปราบ" },
+      { name: "theme-color", content: "#0f766e" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "สับสต๊อก" },
       { property: "og:title", content: "สับสต๊อก | ระบบจัดการเบิกจ่ายยา รพ.สบปราบ" },
       {
         property: "og:description",
