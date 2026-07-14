@@ -55,7 +55,13 @@ function AuthPage() {
       return;
     }
     setSubmitting(true);
-    const { error } = await signUp(regEmail.trim(), regPassword, regName.trim(), regUsername.trim());
+    const { error } = await signUp(
+      regEmail.trim(),
+      regPassword,
+      regName.trim(),
+      regUsername.trim(),
+      regPosition.trim(),
+    );
     setSubmitting(false);
     if (error) {
       toast.error("สมัครสมาชิกไม่สำเร็จ", { description: mapError(error) });
