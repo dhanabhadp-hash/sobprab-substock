@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Pill, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import logoKnifePill from "@/assets/logo-knife-pill.png";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
