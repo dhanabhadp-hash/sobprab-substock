@@ -92,6 +92,7 @@ export function printRequisitionDoc(doc: RequisitionDoc): boolean {
   .top { display: flex; justify-content: flex-end; font-size: 13px; margin-bottom: 6px; }
   .meta { line-height: 2; margin-bottom: 8px; }
   .dot { display: inline-block; border-bottom: 1px dotted #000; min-width: 60px; text-align: center; padding: 0 6px; }
+  .datemeta { text-align: center; margin-top: 4px; }
   table { width: 100%; border-collapse: collapse; }
   th, td { border: 1px solid #000; padding: 4px 6px; font-size: 12px; vertical-align: middle; }
   th { text-align: center; font-weight: 600; }
