@@ -75,8 +75,14 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-secondary via-background to-secondary px-4 py-10">
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="gradient-brand mb-3 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg shadow-primary/20">
-            <Pill className="h-8 w-8 text-primary-foreground" strokeWidth={2.2} />
+          <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-2xl bg-card shadow-lg shadow-primary/20 ring-1 ring-primary/10">
+            <img
+              src={logoKnifePill}
+              alt="โลโก้สับสต๊อก มีดสับแคปซูลยา"
+              width={80}
+              height={80}
+              className="h-16 w-16 object-contain"
+            />
           </div>
           <h1 className="text-2xl font-bold text-foreground">
             สับสต๊อก <span className="text-gradient-brand">🔪</span>
