@@ -135,7 +135,7 @@ export function printRequisitionDoc(doc: RequisitionDoc): boolean {
     <div class="sign">
       ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้ขอเบิก</span>
       <div class="sname">( ${esc(requester)} )</div>
-      <div class="spos">ตำแหน่ง <span class="sline" style="min-width:150px">&nbsp;</span></div>
+      <div class="spos">${posCell(requesterPos)}</div>
     </div>
     <div class="sign">
       ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้สั่งจ่าย</span>
@@ -145,7 +145,7 @@ export function printRequisitionDoc(doc: RequisitionDoc): boolean {
     <div class="sign">
       ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้รับ</span>
       <div class="sname">( ${esc(requester)} )</div>
-      <div class="spos">ตำแหน่ง <span class="sline" style="min-width:150px">&nbsp;</span></div>
+      <div class="spos">${posCell(requesterPos)}</div>
     </div>
     <div class="sign">
       ลงชื่อ <span class="sline">&nbsp;</span> <span class="srole">ผู้จ่าย</span>
