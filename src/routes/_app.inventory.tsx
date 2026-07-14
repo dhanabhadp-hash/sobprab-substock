@@ -291,9 +291,14 @@ function InventoryPage() {
                         </TableCell>
                         {isAdmin && (
                           <TableCell>
-                            <Button variant="ghost" size="icon" onClick={() => openEdit(m)}>
-                              <Pencil className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Button variant="ghost" size="icon" onClick={() => openDuplicate(m)} title="คัดลอก (บาร์โค้ดใหม่)">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => openEdit(m)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </TableCell>
                         )}
                       </TableRow>
