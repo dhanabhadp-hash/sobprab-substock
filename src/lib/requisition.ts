@@ -72,6 +72,11 @@ export function printRequisitionDoc(doc: RequisitionDoc): boolean {
     .join("");
 
   const requester = doc.requester_name || "";
+  const requesterPos = doc.requester_position || "";
+  const posCell = (pos: string) =>
+    pos
+      ? `ตำแหน่ง <span style="border-bottom:1px dotted #000;padding:0 4px">${esc(pos)}</span>`
+      : `ตำแหน่ง <span class="sline" style="min-width:150px">&nbsp;</span>`;
 
   const html = `<!doctype html>
 <html lang="th"><head><meta charset="utf-8" />
