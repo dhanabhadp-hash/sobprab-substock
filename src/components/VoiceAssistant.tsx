@@ -1,8 +1,9 @@
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { Mic, MicOff, Loader2, Check, Pencil, X, Sparkles } from "lucide-react";
+import { Mic, MicOff, Loader2, Check, Pencil, X, Sparkles, HelpCircle } from "lucide-react";
 import { parseVoiceCommand, type ParsedVoiceCommand } from "@/lib/voice.functions";
+import { fuzzyFindMedicines, type Candidate } from "@/lib/fuzzy-match";
 import { formatNumber, type Medicine } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +22,14 @@ interface Review {
   medicine: Medicine;
   quantity: number;
   transcript: string;
+  confidence: number;
+}
+
+interface Disambiguation {
+  action: TxType;
+  quantity: number;
+  transcript: string;
+  candidates: Candidate<Medicine>[];
 }
 
 interface Props {
@@ -29,53 +38,70 @@ interface Props {
   onEdit: (medicine: Medicine) => void;
 }
 
-function matchMedicine(cmd: ParsedVoiceCommand, medicines: Medicine[]): Medicine | null {
-  const q = `${cmd.drug} ${cmd.form}`.toLowerCase().trim();
-  const drug = cmd.drug.toLowerCase().trim();
-  if (!drug) return null;
-  const scored = medicines
-    .map((m) => {
-      const hay = `${m.drug_name} ${m.strength ?? ""} ${m.form ?? ""}`.toLowerCase();
-      let score = 0;
-      if (hay.includes(drug)) score += 3;
-      drug.split(/\s+/).forEach((w) => {
-        if (w.length > 1 && hay.includes(w)) score += 1;
-      });
-      if (cmd.form && hay.includes(cmd.form.toLowerCase())) score += 2;
-      return { m, score };
-    })
-    .filter((s) => s.score > 0)
-    .sort((a, b) => b.score - a.score);
-  return scored[0]?.m ?? null;
+function medicineText(m: Medicine): string {
+  return `${m.drug_name} ${m.strength ?? ""} ${m.form ?? ""}`.trim();
 }
 
 export function VoiceAssistant({ medicines, onConfirm, onEdit }: Props) {
   const [listening, setListening] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [review, setReview] = useState<Review | null>(null);
+  const [disambig, setDisambig] = useState<Disambiguation | null>(null);
   const recognitionRef = useRef<any>(null);
   const parse = useServerFn(parseVoiceCommand);
 
   const handleTranscript = useCallback(
     async (transcript: string) => {
       setProcessing(true);
+      setReview(null);
+      setDisambig(null);
       try {
-        const cmd = await parse({ data: { transcript } });
-        if (cmd.action === "unknown" || !cmd.drug) {
-          toast.error("ไม่เข้าใจคำสั่ง", { description: `"${transcript}" — ลองพูดใหม่อีกครั้ง` });
+        const cmd: ParsedVoiceCommand = await parse({ data: { transcript } });
+        if (cmd.action === "unknown" || (!cmd.drug && !cmd.drug_en)) {
+          toast.error("ไม่เข้าใจคำสั่ง", {
+            description: `"${transcript}" — ลองพูดใหม่ เช่น "ตัดพาราเซตามอล 50 เม็ด"`,
+          });
           return;
         }
-        const med = matchMedicine(cmd, medicines);
-        if (!med) {
-          toast.error("ไม่พบยาในระบบ", { description: `ค้นหา: ${cmd.drug} ${cmd.form}` });
+
+        // รวมคำค้นทั้งหมด: ชื่อไทย + ชื่ออังกฤษ + candidates จาก AI + form
+        const queries = [cmd.drug_en, cmd.drug, ...cmd.candidates]
+          .flatMap((q) => (cmd.form ? [q, `${q} ${cmd.form}`] : [q]))
+          .filter(Boolean);
+
+        const matches = fuzzyFindMedicines(queries, medicines, medicineText, 0.7);
+
+        if (matches.length === 0) {
+          toast.error("ไม่พบชื่อยา กรุณาลองใหม่", {
+            description: `ค้นหา: ${cmd.drug_en || cmd.drug}${cmd.form ? " (" + cmd.form + ")" : ""}`,
+          });
           return;
         }
-        setReview({
-          action: cmd.action,
-          medicine: med,
-          quantity: cmd.quantity ?? 1,
-          transcript,
-        });
+
+        const quantity = cmd.quantity ?? 1;
+        const top = matches[0];
+        const second = matches[1];
+
+        // หากผลลัพธ์ที่ดีที่สุดชัดเจน (คะแนนสูง และห่างจากอันดับ 2 พอสมควร) → ยืนยันเลย
+        const clear = top.score >= 0.9 && (!second || top.score - second.score >= 0.1);
+
+        if (clear || matches.length === 1) {
+          setReview({
+            action: cmd.action as TxType,
+            medicine: top.item,
+            quantity,
+            transcript,
+            confidence: top.score,
+          });
+        } else {
+          // หลายรายการใกล้เคียง → ให้ผู้ใช้เลือก
+          setDisambig({
+            action: cmd.action as TxType,
+            quantity,
+            transcript,
+            candidates: matches,
+          });
+        }
       } catch (e: any) {
         toast.error("ประมวลผลเสียงไม่สำเร็จ", { description: e?.message });
       } finally {
@@ -133,6 +159,18 @@ export function VoiceAssistant({ medicines, onConfirm, onEdit }: Props) {
     setReview(null);
   };
 
+  const pickCandidate = (m: Medicine) => {
+    if (!disambig) return;
+    setReview({
+      action: disambig.action,
+      medicine: m,
+      quantity: disambig.quantity,
+      transcript: disambig.transcript,
+      confidence: disambig.candidates.find((c) => c.item.id === m.id)?.score ?? 0,
+    });
+    setDisambig(null);
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex flex-col items-center gap-2 py-2">
@@ -157,16 +195,64 @@ export function VoiceAssistant({ medicines, onConfirm, onEdit }: Props) {
             ? "กำลังฟัง... พูดคำสั่งได้เลย"
             : processing
               ? "กำลังประมวลผล..."
-              : 'แตะเพื่อสั่งงานด้วยเสียง เช่น "ตัดพาราไซรัป 50 ขวด"'}
+              : 'แตะเพื่อสั่งงานด้วยเสียง เช่น "ตัดพาราเซตามอล 50 เม็ด"'}
+        </p>
+        <p className="text-center text-[10px] text-muted-foreground">
+          รองรับชื่อยาภาษาอังกฤษออกเสียงแบบไทย (Paracetamol, Amoxicillin ฯลฯ)
         </p>
       </div>
+
+      {disambig && (
+        <Card className="border-amber-400/60 bg-amber-50/50 dark:bg-amber-950/20">
+          <CardContent className="space-y-3 p-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
+              <HelpCircle className="h-4 w-4" />
+              พบยาใกล้เคียงหลายรายการ กรุณายืนยัน
+            </div>
+            <p className="text-xs italic text-muted-foreground">"{disambig.transcript}"</p>
+            <div className="space-y-2">
+              {disambig.candidates.map((c) => (
+                <button
+                  key={c.item.id}
+                  type="button"
+                  onClick={() => pickCandidate(c.item)}
+                  className="w-full rounded-lg border border-border bg-background p-3 text-left transition hover:border-primary hover:bg-primary/5"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium">{c.item.drug_name}</span>
+                    <Badge variant="outline" className="tabular-nums">
+                      {Math.round(c.score * 100)}%
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {c.item.product_code} • {c.item.strength} • {c.item.form}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    คงเหลือ {formatNumber(c.item.current_stock)} {c.item.unit} · จำนวนที่จะทำรายการ{" "}
+                    {formatNumber(disambig.quantity)} {c.item.unit}
+                  </p>
+                </button>
+              ))}
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setDisambig(null)}>
+              <X className="h-4 w-4" />
+              ยกเลิก
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {review && (
         <Card className="border-primary/40 bg-primary/5">
           <CardContent className="space-y-3 p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-primary">
-              <Sparkles className="h-4 w-4" />
-              ทวนรายการจากเสียง
+            <div className="flex items-center justify-between gap-2 text-sm font-medium text-primary">
+              <span className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                ทวนรายการจากเสียง
+              </span>
+              <Badge variant="outline" className="tabular-nums">
+                ความมั่นใจ {Math.round(review.confidence * 100)}%
+              </Badge>
             </div>
             <p className="text-xs italic text-muted-foreground">"{review.transcript}"</p>
             <div className="rounded-lg border border-border bg-background p-3">
