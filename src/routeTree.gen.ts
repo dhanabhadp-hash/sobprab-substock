@@ -17,6 +17,7 @@ import { Route as AppScanRouteImport } from './routes/_app.scan'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppLogsRouteImport } from './routes/_app.logs'
 import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
+import { Route as AppImportRouteImport } from './routes/_app.import'
 import { Route as AppHistoryRouteImport } from './routes/_app.history'
 
 const AuthRoute = AuthRouteImport.update({
@@ -58,6 +59,11 @@ const AppInventoryRoute = AppInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AppRoute,
 } as any)
+const AppImportRoute = AppImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHistoryRoute = AppHistoryRouteImport.update({
   id: '/history',
   path: '/history',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/auth': typeof AuthRoute
   '/history': typeof AppHistoryRoute
+  '/import': typeof AppImportRoute
   '/inventory': typeof AppInventoryRoute
   '/logs': typeof AppLogsRoute
   '/reports': typeof AppReportsRoute
@@ -77,6 +84,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/history': typeof AppHistoryRoute
+  '/import': typeof AppImportRoute
   '/inventory': typeof AppInventoryRoute
   '/logs': typeof AppLogsRoute
   '/reports': typeof AppReportsRoute
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/_app/history': typeof AppHistoryRoute
+  '/_app/import': typeof AppImportRoute
   '/_app/inventory': typeof AppInventoryRoute
   '/_app/logs': typeof AppLogsRoute
   '/_app/reports': typeof AppReportsRoute
@@ -102,6 +111,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/history'
+    | '/import'
     | '/inventory'
     | '/logs'
     | '/reports'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/history'
+    | '/import'
     | '/inventory'
     | '/logs'
     | '/reports'
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/auth'
     | '/_app/history'
+    | '/_app/import'
     | '/_app/inventory'
     | '/_app/logs'
     | '/_app/reports'
@@ -193,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/import': {
+      id: '/_app/import'
+      path: '/import'
+      fullPath: '/import'
+      preLoaderRoute: typeof AppImportRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/history': {
       id: '/_app/history'
       path: '/history'
@@ -205,6 +224,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppHistoryRoute: typeof AppHistoryRoute
+  AppImportRoute: typeof AppImportRoute
   AppInventoryRoute: typeof AppInventoryRoute
   AppLogsRoute: typeof AppLogsRoute
   AppReportsRoute: typeof AppReportsRoute
@@ -215,6 +235,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppHistoryRoute: AppHistoryRoute,
+  AppImportRoute: AppImportRoute,
   AppInventoryRoute: AppInventoryRoute,
   AppLogsRoute: AppLogsRoute,
   AppReportsRoute: AppReportsRoute,
