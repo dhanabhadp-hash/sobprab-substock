@@ -14,6 +14,7 @@ import {
   Wifi,
   WifiOff,
   ChevronRight,
+  Upload,
 } from "lucide-react";
 import { useAuth, ROLE_LABELS, type AppRole } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
