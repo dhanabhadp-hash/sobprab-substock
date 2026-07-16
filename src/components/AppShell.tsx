@@ -41,6 +41,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { to: "/", label: "แดชบอร์ด", icon: LayoutDashboard, roles: ["admin", "user", "visitor"] },
   { to: "/scan", label: "สแกน / เบิกจ่าย", icon: ScanBarcode, roles: ["admin", "user"] },
+  { to: "/import", label: "นำเข้าไฟล์รับยา", icon: Upload, roles: ["admin", "user"] },
   { to: "/inventory", label: "คลังยา", icon: Boxes, roles: ["admin", "user", "visitor"] },
   { to: "/history", label: "ประวัติรับเข้า-จ่ายออก", icon: History, roles: ["admin", "user", "visitor"] },
   { to: "/reports", label: "รายงาน", icon: FileText, roles: ["admin", "user"] },
@@ -51,6 +52,7 @@ const NAV_ITEMS: NavItem[] = [
 const PAGE_TITLES: Record<string, string> = {
   "/": "แดชบอร์ดภาพรวม",
   "/scan": "สแกน / เบิกจ่ายยา",
+  "/import": "นำเข้าไฟล์รับยา (Bulk Import)",
   "/inventory": "คลังยา",
   "/history": "ประวัติรับเข้า-จ่ายออก",
   "/reports": "รายงาน",
