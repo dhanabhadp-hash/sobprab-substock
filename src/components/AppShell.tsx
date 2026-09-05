@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   ScanBarcode,
+  Barcode,
   Boxes,
   FileText,
   ClipboardList,
@@ -43,6 +44,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/scan", label: "สแกน / เบิกจ่าย", icon: ScanBarcode, roles: ["admin", "user"] },
   { to: "/import", label: "นำเข้าไฟล์รับยา", icon: Upload, roles: ["admin", "user"] },
   { to: "/inventory", label: "คลังยา", icon: Boxes, roles: ["admin", "user", "visitor"] },
+  { to: "/barcodes", label: "สร้างบาร์โค้ด", icon: Barcode, roles: ["admin", "user"] },
   { to: "/history", label: "ประวัติรับเข้า-จ่ายออก", icon: History, roles: ["admin", "user", "visitor"] },
   { to: "/reports", label: "รายงาน", icon: FileText, roles: ["admin", "user"] },
   { to: "/logs", label: "บันทึก / Audit", icon: ClipboardList, roles: ["admin"] },
@@ -54,6 +56,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/scan": "สแกน / เบิกจ่ายยา",
   "/import": "นำเข้าไฟล์รับยา (Bulk Import)",
   "/inventory": "คลังยา",
+  "/barcodes": "สร้างบาร์โค้ดยา (3 x 9 ซม.)",
   "/history": "ประวัติรับเข้า-จ่ายออก",
   "/reports": "รายงาน",
   "/logs": "บันทึกระบบ / Audit Trail",

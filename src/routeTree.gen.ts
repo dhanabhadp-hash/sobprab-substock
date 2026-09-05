@@ -19,6 +19,7 @@ import { Route as AppLogsRouteImport } from './routes/_app.logs'
 import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
 import { Route as AppImportRouteImport } from './routes/_app.import'
 import { Route as AppHistoryRouteImport } from './routes/_app.history'
+import { Route as AppBarcodesRouteImport } from './routes/_app.barcodes'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -69,10 +70,16 @@ const AppHistoryRoute = AppHistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBarcodesRoute = AppBarcodesRouteImport.update({
+  id: '/barcodes',
+  path: '/barcodes',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/auth': typeof AuthRoute
+  '/barcodes': typeof AppBarcodesRoute
   '/history': typeof AppHistoryRoute
   '/import': typeof AppImportRoute
   '/inventory': typeof AppInventoryRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/barcodes': typeof AppBarcodesRoute
   '/history': typeof AppHistoryRoute
   '/import': typeof AppImportRoute
   '/inventory': typeof AppInventoryRoute
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_app/barcodes': typeof AppBarcodesRoute
   '/_app/history': typeof AppHistoryRoute
   '/_app/import': typeof AppImportRoute
   '/_app/inventory': typeof AppInventoryRoute
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/barcodes'
     | '/history'
     | '/import'
     | '/inventory'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/barcodes'
     | '/history'
     | '/import'
     | '/inventory'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/auth'
+    | '/_app/barcodes'
     | '/_app/history'
     | '/_app/import'
     | '/_app/inventory'
@@ -219,10 +231,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHistoryRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/barcodes': {
+      id: '/_app/barcodes'
+      path: '/barcodes'
+      fullPath: '/barcodes'
+      preLoaderRoute: typeof AppBarcodesRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppBarcodesRoute: typeof AppBarcodesRoute
   AppHistoryRoute: typeof AppHistoryRoute
   AppImportRoute: typeof AppImportRoute
   AppInventoryRoute: typeof AppInventoryRoute
@@ -234,6 +254,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppBarcodesRoute: AppBarcodesRoute,
   AppHistoryRoute: AppHistoryRoute,
   AppImportRoute: AppImportRoute,
   AppInventoryRoute: AppInventoryRoute,
@@ -253,3 +274,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -86,18 +86,20 @@ function InventoryPage() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
+  const groups = useMemo(() => groupMedicines(medicines ?? []), [medicines]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return (medicines ?? []).filter((m) => {
+    return groups.filter((g) => {
       const matchQ =
         !q ||
-        m.drug_name.toLowerCase().includes(q) ||
-        m.product_code.toLowerCase().includes(q) ||
-        (m.barcode ?? "").toLowerCase().includes(q);
-      const matchF = filter === "all" || stockStatus(m) === filter;
+        g.drug_name.toLowerCase().includes(q) ||
+        g.product_code.toLowerCase().includes(q) ||
+        g.barcodes.some((b) => b.toLowerCase().includes(q));
+      const matchF = filter === "all" || stockStatus(g) === filter;
       return matchQ && matchF;
     });
-  }, [medicines, search, filter]);
+  }, [groups, search, filter]);
 
   const openAdd = () => {
     setEditing(null);
@@ -254,54 +256,127 @@ function InventoryPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-8" />
                     <TableHead>ยา</TableHead>
-                    <TableHead className="hidden md:table-cell">รหัส</TableHead>
-                    <TableHead className="text-right">คงเหลือ</TableHead>
+                    <TableHead className="hidden md:table-cell">รหัสยา</TableHead>
+                    <TableHead className="hidden lg:table-cell">บาร์โค้ด</TableHead>
+                    <TableHead className="text-right">คงเหลือรวม</TableHead>
                     <TableHead className="hidden text-right sm:table-cell">ขั้นต่ำ</TableHead>
+                    <TableHead className="hidden text-right sm:table-cell">ต้องเบิกเพิ่ม</TableHead>
                     <TableHead className="hidden text-right lg:table-cell">ราคา/หน่วย</TableHead>
                     <TableHead className="text-center">สถานะ</TableHead>
                     {isAdmin && <TableHead className="w-12" />}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((m) => {
-                    const st = stockStatus(m);
+                  {filtered.map((g) => {
+                    const st = stockStatus(g);
+                    const reorder = Math.max(Math.ceil(g.minimum_stock - g.current_stock), 0);
+                    const multi = g.items.length > 1;
+                    const isOpen = expanded.includes(g.key);
+                    const single = g.items[0];
                     return (
-                      <TableRow key={m.id}>
-                        <TableCell>
-                          <p className="font-medium">{m.drug_name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {[m.strength, m.form].filter(Boolean).join(" • ")}
-                          </p>
-                        </TableCell>
-                        <TableCell className="hidden font-mono text-xs md:table-cell">{m.product_code}</TableCell>
-                        <TableCell className="text-right font-semibold tabular-nums">
-                          {formatNumber(m.current_stock)} <span className="text-xs font-normal text-muted-foreground">{m.unit}</span>
-                        </TableCell>
-                        <TableCell className="hidden text-right tabular-nums text-muted-foreground sm:table-cell">
-                          {formatNumber(m.minimum_stock)}
-                        </TableCell>
-                        <TableCell className="hidden text-right tabular-nums text-muted-foreground lg:table-cell">
-                          {formatCurrency(m.price_per_unit)}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge variant="outline" className={cn("font-medium", STATUS_META[st].className)}>
-                            {STATUS_META[st].label}
-                          </Badge>
-                        </TableCell>
-                        {isAdmin && (
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="icon" onClick={() => openDuplicate(m)} title="คัดลอก (บาร์โค้ดใหม่)">
-                                <Copy className="h-4 w-4" />
+                      <>
+                        <TableRow key={g.key}>
+                          <TableCell className="pr-0">
+                            {multi && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => toggleExpand(g.key)}
+                                title="ดูบาร์โค้ดทั้งหมด"
+                              >
+                                {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                               </Button>
-                              <Button variant="ghost" size="icon" onClick={() => openEdit(m)}>
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            </div>
+                            )}
                           </TableCell>
-                        )}
-                      </TableRow>
+                          <TableCell>
+                            <p className="font-medium">{g.drug_name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {[g.strength, g.form].filter(Boolean).join(" • ")}
+                              {multi && (
+                                <span className="ml-2 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                                  {g.items.length} บาร์โค้ด (รวมยอด)
+                                </span>
+                              )}
+                            </p>
+                          </TableCell>
+                          <TableCell className="hidden font-mono text-xs md:table-cell">{g.product_code}</TableCell>
+                          <TableCell className="hidden font-mono text-xs text-muted-foreground lg:table-cell">
+                            {multi ? `${g.barcodes.length} รหัส` : (g.barcodes[0] ?? "-")}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold tabular-nums">
+                            {formatNumber(g.current_stock)}{" "}
+                            <span className="text-xs font-normal text-muted-foreground">{g.unit}</span>
+                          </TableCell>
+                          <TableCell className="hidden text-right tabular-nums text-muted-foreground sm:table-cell">
+                            {formatNumber(g.minimum_stock)}
+                          </TableCell>
+                          <TableCell className="hidden text-right tabular-nums sm:table-cell">
+                            {reorder > 0 ? (
+                              <span className="font-semibold text-warning">{formatNumber(reorder)}</span>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="hidden text-right tabular-nums text-muted-foreground lg:table-cell">
+                            {formatCurrency(g.price_per_unit)}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="outline" className={cn("font-medium", STATUS_META[st].className)}>
+                              {STATUS_META[st].label}
+                            </Badge>
+                          </TableCell>
+                          {isAdmin && (
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => openDuplicate(single)}
+                                  title="คัดลอก (บาร์โค้ดใหม่)"
+                                >
+                                  <Copy className="h-4 w-4" />
+                                </Button>
+                                {!multi && (
+                                  <Button variant="ghost" size="icon" onClick={() => openEdit(single)}>
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                        {multi &&
+                          isOpen &&
+                          g.items.map((m) => (
+                            <TableRow key={m.id} className="bg-muted/40">
+                              <TableCell />
+                              <TableCell className="text-xs text-muted-foreground">
+                                ↳ บาร์โค้ด {m.barcode ?? "(ยังไม่ระบุ)"}
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell" />
+                              <TableCell className="hidden font-mono text-xs lg:table-cell">{m.barcode ?? "-"}</TableCell>
+                              <TableCell className="text-right tabular-nums">
+                                {formatNumber(m.current_stock)}
+                              </TableCell>
+                              <TableCell className="hidden sm:table-cell" />
+                              <TableCell className="hidden sm:table-cell" />
+                              <TableCell className="hidden text-right tabular-nums text-muted-foreground lg:table-cell">
+                                {formatCurrency(m.price_per_unit)}
+                              </TableCell>
+                              <TableCell />
+                              {isAdmin && (
+                                <TableCell>
+                                  <Button variant="ghost" size="icon" onClick={() => openEdit(m)}>
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                </TableCell>
+                              )}
+                            </TableRow>
+                          ))}
+                      </>
                     );
                   })}
                 </TableBody>
