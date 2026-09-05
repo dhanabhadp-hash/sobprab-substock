@@ -53,6 +53,7 @@
     "exceljs": "^4.4.0",
     "html5-qrcode": "^2.3.8",
     "input-otp": "^1.4.2",
+    "jsbarcode": "^3.12.3",
     "lucide-react": "^0.575.0",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
@@ -72,6 +73,7 @@
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "2.13.1",
+    "@types/jsbarcode": "^3.11.4",
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
