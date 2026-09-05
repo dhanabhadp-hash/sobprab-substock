@@ -86,18 +86,20 @@ function InventoryPage() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
+  const groups = useMemo(() => groupMedicines(medicines ?? []), [medicines]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return (medicines ?? []).filter((m) => {
+    return groups.filter((g) => {
       const matchQ =
         !q ||
-        m.drug_name.toLowerCase().includes(q) ||
-        m.product_code.toLowerCase().includes(q) ||
-        (m.barcode ?? "").toLowerCase().includes(q);
-      const matchF = filter === "all" || stockStatus(m) === filter;
+        g.drug_name.toLowerCase().includes(q) ||
+        g.product_code.toLowerCase().includes(q) ||
+        g.barcodes.some((b) => b.toLowerCase().includes(q));
+      const matchF = filter === "all" || stockStatus(g) === filter;
       return matchQ && matchF;
     });
-  }, [medicines, search, filter]);
+  }, [groups, search, filter]);
 
   const openAdd = () => {
     setEditing(null);
