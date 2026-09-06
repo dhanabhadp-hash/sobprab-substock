@@ -1,4 +1,13 @@
-import type { Medicine } from "@/lib/format";
+/** รับได้ทั้งยารายตัว และกลุ่มยาที่รวมหลายบาร์โค้ดแล้ว */
+export interface RequisitionSource {
+  drug_name: string;
+  strength: string | null;
+  form: string | null;
+  unit: string;
+  price_per_unit: number;
+  minimum_stock: number;
+  current_stock: number;
+}
 
 export interface RequisitionItem {
   name: string;
@@ -26,7 +35,7 @@ const TH_MONTHS = [
   "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม",
 ];
 
-export function buildRequisitionItems(medicines: Medicine[]): RequisitionItem[] {
+export function buildRequisitionItems(medicines: RequisitionSource[]): RequisitionItem[] {
   return medicines.map((m) => {
     const reorder = Math.max(Math.ceil(m.minimum_stock - m.current_stock), 0);
     return {
