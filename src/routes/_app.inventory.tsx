@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, Pencil, Copy, Loader2, PackageX } from "lucide-react";
+import { Search, Plus, Pencil, Copy, Loader2, PackageX, ChevronRight, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useMedicines } from "@/lib/queries";
-import { formatNumber, formatCurrency, stockStatus, type Medicine, type StockStatus } from "@/lib/format";
+import { formatNumber, formatCurrency, stockStatus, groupMedicines, type Medicine, type StockStatus } from "@/lib/format";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,6 +85,9 @@ function InventoryPage() {
   const [editing, setEditing] = useState<Medicine | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [expanded, setExpanded] = useState<string[]>([]);
+  const toggleExpand = (key: string) =>
+    setExpanded((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
 
   const groups = useMemo(() => groupMedicines(medicines ?? []), [medicines]);
 
@@ -276,8 +279,8 @@ function InventoryPage() {
                     const isOpen = expanded.includes(g.key);
                     const single = g.items[0];
                     return (
-                      <>
-                        <TableRow key={g.key}>
+                      <Fragment key={g.key}>
+                        <TableRow>
                           <TableCell className="pr-0">
                             {multi && (
                               <Button
@@ -376,7 +379,7 @@ function InventoryPage() {
                               )}
                             </TableRow>
                           ))}
-                      </>
+                      </Fragment>
                     );
                   })}
                 </TableBody>
@@ -386,7 +389,7 @@ function InventoryPage() {
         </CardContent>
       </Card>
       <p className="text-center text-xs text-muted-foreground">
-        แสดง {formatNumber(filtered.length)} จาก {formatNumber((medicines ?? []).length)} รายการ
+        แสดง {formatNumber(filtered.length)} กลุ่มยา (รวม {formatNumber((medicines ?? []).length)} บาร์โค้ด/รายการ)
       </p>
     </div>
   );
