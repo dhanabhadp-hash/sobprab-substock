@@ -210,7 +210,7 @@ function ReportsPage() {
       return;
     }
 
-    const items = buildRequisitionItems(lowMeds as any);
+    const items = buildRequisitionItems(lowMeds);
     const requester = profile?.full_name || profile?.username || "";
     const requesterPosition = profile?.position || "";
     const totalAmount = items.reduce((s, it) => s + it.total, 0);
