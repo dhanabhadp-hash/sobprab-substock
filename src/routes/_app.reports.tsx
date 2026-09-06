@@ -19,7 +19,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useMedicines } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
-import { formatNumber, formatCurrency, formatDateTime, stockStatus, TX_TYPE_LABELS } from "@/lib/format";
+import { formatNumber, formatCurrency, formatDateTime, stockStatus, groupMedicines, TX_TYPE_LABELS } from "@/lib/format";
 import {
   buildRequisitionItems,
   printRequisitionDoc,
@@ -113,6 +113,8 @@ function ReportsPage() {
       const ws = wb.addWorksheet("คลังยา");
       ws.columns = [
         { header: "รหัสยา", key: "code", width: 14 },
+        { header: "บาร์โค้ด", key: "barcode", width: 18 },
+        { header: "บาร์โค้ด", key: "barcode", width: 18 },
         { header: "ชื่อยา", key: "name", width: 34 },
         { header: "ความแรง", key: "strength", width: 14 },
         { header: "รูปแบบ", key: "form", width: 12 },
@@ -128,6 +130,7 @@ function ReportsPage() {
         const st = stockStatus(m);
         ws.addRow({
           code: m.product_code,
+          barcode: m.barcode ?? "",
           name: m.drug_name,
           strength: m.strength ?? "",
           form: m.form ?? "",
@@ -154,7 +157,7 @@ function ReportsPage() {
     try {
       const { data, error } = await supabase
         .from("transactions")
-        .select("*, medicines(drug_name, unit, product_code)")
+        .select("*, medicines(drug_name, unit, product_code, barcode)")
         .gte("created_at", `${from}T00:00:00`)
         .lte("created_at", `${to}T23:59:59`)
         .order("created_at", { ascending: false });
@@ -164,6 +167,8 @@ function ReportsPage() {
       ws.columns = [
         { header: "วันที่-เวลา", key: "date", width: 22 },
         { header: "รหัสยา", key: "code", width: 14 },
+        { header: "บาร์โค้ด", key: "barcode", width: 18 },
+        { header: "บาร์โค้ด", key: "barcode", width: 18 },
         { header: "ชื่อยา", key: "name", width: 34 },
         { header: "ประเภท", key: "type", width: 12 },
         { header: "จำนวน", key: "qty", width: 10 },
@@ -177,6 +182,7 @@ function ReportsPage() {
         ws.addRow({
           date: formatDateTime(t.created_at),
           code: t.medicines?.product_code ?? "",
+          barcode: t.medicines?.barcode ?? "",
           name: t.medicines?.drug_name ?? "",
           type: TX_TYPE_LABELS[t.type] ?? t.type,
           qty: t.quantity,
@@ -197,16 +203,14 @@ function ReportsPage() {
   };
 
   const createRequisition = async () => {
-    const lowMeds = (medicines ?? [])
-      .filter((m) => stockStatus(m) !== "ok")
-      .sort((a, b) => a.drug_name.localeCompare(b.drug_name, "th"));
+    const lowMeds = groupMedicines(medicines ?? []).filter((g) => stockStatus(g) !== "ok");
 
     if (lowMeds.length === 0) {
       toast.info("ไม่มีรายการยาที่ต่ำกว่าหรือใกล้จุดสต๊อกขั้นต่ำ");
       return;
     }
 
-    const items = buildRequisitionItems(lowMeds);
+    const items = buildRequisitionItems(lowMeds as any);
     const requester = profile?.full_name || profile?.username || "";
     const requesterPosition = profile?.position || "";
     const totalAmount = items.reduce((s, it) => s + it.total, 0);
@@ -261,13 +265,14 @@ function ReportsPage() {
   };
 
   const list = medicines ?? [];
+  const grouped = groupMedicines(list);
   const totalValue = list.reduce((s, m) => s + m.current_stock * m.price_per_unit, 0);
-  const lowCount = list.filter((m) => stockStatus(m) !== "ok").length;
+  const lowCount = grouped.filter((g) => stockStatus(g) !== "ok").length;
 
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-3">
-        <SummaryCard icon={Boxes} label="รายการยา" value={formatNumber(list.length)} />
+        <SummaryCard icon={Boxes} label="รายการยา (กลุ่มรหัสยา)" value={formatNumber(grouped.length)} />
         <SummaryCard icon={FileSpreadsheet} label="มูลค่าคงคลัง" value={formatCurrency(totalValue)} />
         <SummaryCard icon={AlertTriangle} label="ต้องเติมสต๊อก" value={formatNumber(lowCount)} />
       </div>

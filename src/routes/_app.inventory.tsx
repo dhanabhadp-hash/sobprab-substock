@@ -389,7 +389,7 @@ function InventoryPage() {
         </CardContent>
       </Card>
       <p className="text-center text-xs text-muted-foreground">
-        แสดง {formatNumber(filtered.length)} จาก {formatNumber((medicines ?? []).length)} รายการ
+        แสดง {formatNumber(filtered.length)} กลุ่มยา (รวม {formatNumber((medicines ?? []).length)} บาร์โค้ด/รายการ)
       </p>
     </div>
   );
