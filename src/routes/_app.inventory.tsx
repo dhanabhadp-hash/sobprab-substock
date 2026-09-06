@@ -85,6 +85,9 @@ function InventoryPage() {
   const [editing, setEditing] = useState<Medicine | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [expanded, setExpanded] = useState<string[]>([]);
+  const toggleExpand = (key: string) =>
+    setExpanded((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
 
   const groups = useMemo(() => groupMedicines(medicines ?? []), [medicines]);
 
