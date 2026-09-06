@@ -279,8 +279,8 @@ function InventoryPage() {
                     const isOpen = expanded.includes(g.key);
                     const single = g.items[0];
                     return (
-                      <>
-                        <TableRow key={g.key}>
+                      <Fragment key={g.key}>
+                        <TableRow>
                           <TableCell className="pr-0">
                             {multi && (
                               <Button
@@ -379,7 +379,7 @@ function InventoryPage() {
                               )}
                             </TableRow>
                           ))}
-                      </>
+                      </Fragment>
                     );
                   })}
                 </TableBody>
