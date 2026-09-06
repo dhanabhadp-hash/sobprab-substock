@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { Search, Plus, Pencil, Copy, Loader2, PackageX } from "lucide-react";
+import { Search, Plus, Pencil, Copy, Loader2, PackageX, ChevronRight, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useMedicines } from "@/lib/queries";
-import { formatNumber, formatCurrency, stockStatus, type Medicine, type StockStatus } from "@/lib/format";
+import { formatNumber, formatCurrency, stockStatus, groupMedicines, type Medicine, type StockStatus } from "@/lib/format";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
