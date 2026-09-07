@@ -336,7 +336,7 @@ function Dashboard() {
                   tickLine={false}
                   width={56}
                   tickFormatter={(n: number) =>
-                    n >= 1000 ? `${formatNumber(n / 1000, 1)}พ.` : formatNumber(n)
+                    n >= 1000 ? `${formatNumber(Math.round(n / 100) / 10, 1)}k` : formatNumber(n)
                   }
                 />
 
