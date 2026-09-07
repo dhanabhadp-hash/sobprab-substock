@@ -330,7 +330,16 @@ function Dashboard() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} interval={1} />
-                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} width={40} />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={56}
+                  tickFormatter={(n: number) =>
+                    n >= 1000 ? `${formatNumber(n / 1000, 1)}พ.` : formatNumber(n)
+                  }
+                />
+
                 <RTooltip
                   contentStyle={{
                     borderRadius: 12,
