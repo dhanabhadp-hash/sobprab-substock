@@ -134,9 +134,10 @@ function KpiCard({
           <Icon className="h-6 w-6" />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-sm text-muted-foreground">{title}</p>
+          <p className="text-sm leading-snug text-muted-foreground">{title}</p>
           <p className="text-2xl font-bold tabular-nums tracking-tight text-foreground">{format(v)}</p>
-          {sub && <p className="truncate text-xs text-muted-foreground">{sub}</p>}
+          {sub && <p className="text-xs leading-snug text-muted-foreground">{sub}</p>}
+
         </div>
       </CardContent>
     </Card>
@@ -329,7 +330,16 @@ function Dashboard() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} interval={1} />
-                <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} width={40} />
+                <YAxis
+                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={56}
+                  tickFormatter={(n: number) =>
+                    n >= 1000 ? `${formatNumber(Math.round(n / 100) / 10, 1)}k` : formatNumber(n)
+                  }
+                />
+
                 <RTooltip
                   contentStyle={{
                     borderRadius: 12,
