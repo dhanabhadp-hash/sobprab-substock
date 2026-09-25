@@ -14,6 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      import_aliases: {
+        Row: {
+          created_by: string | null
+          id: string
+          medicine_id: string
+          raw_key: string
+          updated_at: string
+        }
+        Insert: {
+          created_by?: string | null
+          id?: string
+          medicine_id: string
+          raw_key: string
+          updated_at?: string
+        }
+        Update: {
+          created_by?: string | null
+          id?: string
+          medicine_id?: string
+          raw_key?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_aliases_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "medicines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_batches: {
+        Row: {
+          created_at: string
+          file_name: string | null
+          id: string
+          item_count: number
+          items: Json
+          reverted_at: string | null
+          reverted_by: string | null
+          total_qty: number
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_name?: string | null
+          id?: string
+          item_count?: number
+          items?: Json
+          reverted_at?: string | null
+          reverted_by?: string | null
+          total_qty?: number
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string | null
+          id?: string
+          item_count?: number
+          items?: Json
+          reverted_at?: string | null
+          reverted_by?: string | null
+          total_qty?: number
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
       medicines: {
         Row: {
           barcode: string | null
@@ -241,6 +312,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      import_receive_batch: {
+        Args: { _file_name: string; _items: Json }
+        Returns: string
+      }
       log_event: {
         Args: { _action: string; _detail?: string; _status?: string }
         Returns: undefined
@@ -257,6 +332,7 @@ export type Database = {
           tx_id: string
         }[]
       }
+      revert_import_batch: { Args: { _batch_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user" | "visitor"
