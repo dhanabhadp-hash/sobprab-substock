@@ -48,13 +48,15 @@ interface ParsedRow {
 
 const HEADER_ALIASES: Record<string, string[]> = {
   code: ["code", "product_code", "รหัส", "รหัสยา", "code drugs name", "drug_code", "รหัสสินค้า"],
-  name: ["name", "drug_name", "drug name", "ชื่อยา", "ชื่อ", "รายการ", "รายการยา", "ชื่อสินค้า", "description"],
+  name: ["name", "dname", "drug_name", "drug name", "drugname", "ชื่อยา", "ชื่อ", "รายการ", "รายการยา", "ชื่อสินค้า", "description"],
   strength: ["strength", "ความแรง", "ขนาด", "dose"],
   form: ["form", "รูปแบบ", "dosage form", "ชนิด"],
   barcode: ["barcode", "บาร์โค้ด", "รหัสบาร์โค้ด", "ean", "upc"],
-  qty: ["qty", "quantity", "จำนวน", "รับเข้า", "amount", "จำนวนรับ", "จำนวนที่รับ"],
+  qty: ["qty", "quantity", "quility", "qulity", "quality", "quantily", "จำนวน", "รับเข้า", "amount", "จำนวนรับ", "จำนวนที่รับ"],
   note: ["note", "หมายเหตุ", "remark", "notes", "lot", "lot no"],
 };
+// คอลัมน์ที่ห้ามจับเป็นจำนวน (เช่น amountend1 = "230 X 1")
+const HEADER_EXCLUDE: Record<string, string[]> = { qty: ["amountend", "total", "price", "ราคา", "มูลค่า"] };
 
 const norm = (s: unknown) => String(s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
 const aliasKey = (name: string, strength: string, form: string) =>
@@ -81,13 +83,24 @@ const formOf = (s: string) => s.match(/\b(tab|cap|inj|syr|inf|cream|oint|gel|dro
 function detectHeader(rows: unknown[][]): { idx: number; cols: Record<string, number> } | null {
   const limit = Math.min(rows.length, 30);
   for (let i = 0; i < limit; i++) {
-    const cells = (rows[i] ?? []).map(norm);
+    // ตัดเลขท้ายหัวคอลัมน์ (code1, DName1) ออก
+    const cells = (rows[i] ?? []).map((c) => norm(c).replace(/[\s_]*\d+$/, ""));
     const cols: Record<string, number> = {};
+    const used = new Set<number>();
+    const ok = (field: string, c: string, j: number) =>
+      !!c && !used.has(j) && !(HEADER_EXCLUDE[field] ?? []).some((x) => c.includes(x));
+    // รอบแรก: ตรงเป๊ะ
     for (const [field, aliases] of Object.entries(HEADER_ALIASES)) {
       const al = aliases.map(norm);
-      let j = cells.findIndex((c) => c && al.includes(c));
-      if (j < 0) j = cells.findIndex((c) => c && al.some((a) => a.length > 2 && c.includes(a)));
-      if (j >= 0 && !Object.values(cols).includes(j)) cols[field] = j;
+      const j = cells.findIndex((c, k) => ok(field, c, k) && al.includes(c));
+      if (j >= 0) { cols[field] = j; used.add(j); }
+    }
+    // รอบสอง: มีคำนั้นอยู่ในหัวคอลัมน์
+    for (const [field, aliases] of Object.entries(HEADER_ALIASES)) {
+      if (cols[field] !== undefined) continue;
+      const al = aliases.map(norm);
+      const j = cells.findIndex((c, k) => ok(field, c, k) && al.some((a) => a.length > 2 && c.includes(a)));
+      if (j >= 0) { cols[field] = j; used.add(j); }
     }
     if (cols.qty !== undefined && (cols.name !== undefined || cols.code !== undefined || cols.barcode !== undefined)) {
       return { idx: i, cols };
