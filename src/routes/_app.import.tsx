@@ -60,6 +60,23 @@ const norm = (s: unknown) => String(s ?? "").trim().toLowerCase().replace(/\s+/g
 const aliasKey = (name: string, strength: string, form: string) =>
   norm(`${name} ${strength} ${form}`);
 const medText = (m: Medicine) => `${m.drug_name} ${m.strength ?? ""} ${m.form ?? ""}`;
+const ABBR: [RegExp, string][] = [
+  [/\btabs?\b|\btablets?\b|\bเม็ด\b/g, "tab"],
+  [/\bcaps?\b|\bcapsules?\b|\bแคปซูล\b/g, "cap"],
+  [/\binj\.?\b|\binjection\b|\bamp\b|\bvial\b/g, "inj"],
+  [/\bsyr\.?\b|\bsyrup\b|\bsusp\b|\bsuspension\b/g, "syr"],
+  [/\bivf\b|\binf\b|\binfusion\b/g, "inf"],
+  [/\bmcg\b|\bµg\b|\bug\b/g, "mcg"],
+  [/\bmls?\b/g, "ml"],
+  [/\bgm\b|\bgrams?\b/g, "g"],
+];
+const expandAbbr = (s: string) => {
+  let t = s.toLowerCase().replace(/(\d),(\d{3})/g, "$1$2").replace(/(\d)\s*(mg|mcg|ml|g|%)/g, "$1 $2");
+  for (const [re, v] of ABBR) t = t.replace(re, v);
+  return t.replace(/\s+/g, " ").trim();
+};
+const nums = (s: string) => Array.from(new Set(s.match(/\d+(?:\.\d+)?/g) ?? []));
+const formOf = (s: string) => s.match(/\b(tab|cap|inj|syr|inf|cream|oint|gel|drop|inh)\b/)?.[1] ?? "";
 
 function detectHeader(rows: unknown[][]): { idx: number; cols: Record<string, number> } | null {
   const limit = Math.min(rows.length, 30);
@@ -169,19 +186,28 @@ function ImportPage() {
         let score = 0;
         let candidates: { item: Medicine; score: number }[] = [];
 
-        if (barcode) matched = medicines.find((m) => (m.barcode ?? "").trim() === barcode) ?? null;
-        if (matched) { matchType = "barcode"; score = 1; }
-        if (!matched && code) {
-          matched = medicines.find((m) => norm(m.product_code) === norm(code)) ?? null;
-          if (matched) { matchType = "product_code"; score = 1; }
-        }
+        // รหัสยา/บาร์โค้ดจากโปรแกรมต้นทางไม่ตรงกับระบบนี้ → จับคู่จากชื่อยา+ความแรง+รูปแบบเท่านั้น
         const key = aliasKey(name, strength, form);
-        if (!matched && name && memory.has(key)) {
+        if (name && memory.has(key)) {
           matched = byId.get(memory.get(key)!) ?? null;
           if (matched) { matchType = "memory"; score = 1; }
         }
         if (!matched && name) {
-          candidates = fuzzyFindMedicines([`${name} ${strength} ${form}`, name], medicines, medText, 0.4);
+          const q = expandAbbr(`${name} ${strength} ${form}`);
+          const qNums = nums(q);
+          candidates = fuzzyFindMedicines([q, expandAbbr(name)], medicines, (m) => expandAbbr(medText(m)), 0.4)
+            .map((c) => {
+              const mNums = nums(expandAbbr(medText(c.item)));
+              let s = c.score;
+              if (qNums.length && mNums.length) {
+                const hit = qNums.filter((n) => mNums.includes(n)).length;
+                s += hit ? 0.1 * (hit / qNums.length) : -0.15; // ความแรงตรง/ไม่ตรง
+              }
+              const qf = formOf(q), mf = formOf(expandAbbr(medText(c.item)));
+              if (qf && mf) s += qf === mf ? 0.05 : -0.1;
+              return { item: c.item, score: Math.max(0, Math.min(1, s)) };
+            })
+            .sort((a, b) => b.score - a.score);
           const top = candidates[0];
           const second = candidates[1];
           if (top && top.score >= 0.7 && (!second || top.score - second.score >= 0.05 || second.score < 0.7)) {
