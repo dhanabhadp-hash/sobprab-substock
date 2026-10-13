@@ -73,7 +73,7 @@ function useCountUp(target: number, duration = 900) {
     const from = prev.current;
     const to = target;
     prev.current = target;
-    if (from === to) {
+    if (from === to || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setValue(to);
       return;
     }
@@ -111,23 +111,23 @@ function KpiCard({
 }) {
   const v = useCountUp(numeric);
   const tones: Record<string, { chip: string; bar: string }> = {
-    primary: { chip: "bg-primary/10 text-primary", bar: "from-primary to-primary/60" },
-    accent: { chip: "bg-accent/15 text-accent-foreground", bar: "from-accent to-accent/60" },
-    warning: { chip: "bg-warning/15 text-warning", bar: "from-warning to-warning/60" },
-    destructive: { chip: "bg-destructive/10 text-destructive", bar: "from-destructive to-destructive/60" },
-    success: { chip: "bg-success/10 text-success", bar: "from-success to-success/60" },
+    primary: { chip: "bg-primary/10 text-primary", bar: "bg-primary" },
+    accent: { chip: "bg-accent/15 text-accent-foreground", bar: "bg-accent" },
+    warning: { chip: "bg-warning/15 text-warning", bar: "bg-warning" },
+    destructive: { chip: "bg-destructive/10 text-destructive", bar: "bg-destructive" },
+    success: { chip: "bg-success/10 text-success", bar: "bg-success" },
   };
   const t = tones[tone];
   return (
     <Card
-      className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+      className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm"
       style={{ animation: `dash-fade-up 0.5s ease-out ${delay}ms both` }}
     >
-      <div className={cn("absolute inset-x-0 top-0 h-1 bg-gradient-to-r", t.bar)} />
+      <div className={cn("absolute inset-x-0 top-0 h-0.5", t.bar)} />
       <CardContent className="flex items-center gap-4 p-5">
         <div
           className={cn(
-            "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110",
+            "flex h-12 w-12 shrink-0 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110",
             t.chip,
           )}
         >
@@ -135,7 +135,7 @@ function KpiCard({
         </div>
         <div className="min-w-0">
           <p className="text-sm leading-snug text-muted-foreground">{title}</p>
-          <p className="text-2xl font-bold tabular-nums tracking-tight text-foreground">{format(v)}</p>
+          <p className="text-2xl font-bold tabular-nums  text-foreground">{format(v)}</p>
           {sub && <p className="text-xs leading-snug text-muted-foreground">{sub}</p>}
 
         </div>
@@ -246,11 +246,11 @@ function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="executive-dashboard space-y-6">
         <Skeleton className="h-28 rounded-2xl" />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-xl" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 rounded-lg" />
           ))}
         </div>
       </div>
@@ -258,76 +258,46 @@ function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <style>{`@keyframes dash-fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }`}</style>
-
-      {/* Executive summary band */}
-      <div
-        className="gradient-brand relative overflow-hidden rounded-2xl p-6 text-primary-foreground shadow-lg sm:p-8"
-        style={{ animation: "dash-fade-up 0.4s ease-out both" }}
-      >
-        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
-        <div className="pointer-events-none absolute -bottom-20 right-32 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <div className="executive-dashboard space-y-6">
+      <section className="border-b border-border pb-6">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-medium text-primary-foreground/80">
-              รายงานภาพรวมคลังยา • ห้องยา โรงพยาบาลสบปราบ
-            </p>
-            <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
-              {formatCurrency(stats.totalValue)}
-            </h2>
-            <p className="mt-1 text-sm text-primary-foreground/80">
-              มูลค่าสินค้าคงคลังรวม {formatNumber(stats.groupCount)} กลุ่มยา ({formatNumber(stats.count)} รายการบาร์โค้ด)
-            </p>
+            <p className="text-xs font-medium text-muted-foreground">ห้องยา โรงพยาบาลสบปราบ</p>
+            <h2 className="mt-1 text-2xl font-bold text-foreground">ภาพรวมคลังยา</h2>
           </div>
-          <div className="grid grid-cols-3 gap-6 sm:gap-10">
-            <div>
-              <p className="text-2xl font-bold tabular-nums sm:text-3xl">{formatNumber(stats.readiness, 1)}%</p>
-              <p className="text-xs text-primary-foreground/80">ความพร้อมจ่าย</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold tabular-nums sm:text-3xl">{formatCurrency(stats.reorderValue)}</p>
-              <p className="text-xs text-primary-foreground/80">งบเบิกเพิ่มโดยประมาณ</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold tabular-nums sm:text-3xl">{formatNumber(txStats.todayCount)}</p>
-              <p className="text-xs text-primary-foreground/80">รายการเคลื่อนไหววันนี้</p>
-            </div>
+          <Badge variant="outline" className="gap-2 border-success/30 text-success"><Activity className="h-3.5 w-3.5" />ข้อมูลล่าสุด</Badge>
+        </div>
+        <div className="grid gap-6 md:grid-cols-[1.4fr_1fr] md:items-end">
+          <div>
+            <p className="text-sm text-muted-foreground">มูลค่าคงคลังรวม</p>
+            <p className="mt-2 break-words text-4xl font-bold tabular-nums text-foreground sm:text-5xl">{formatCurrency(stats.totalValue)}</p>
+            <p className="mt-3 text-sm text-muted-foreground">{formatNumber(stats.groupCount)} กลุ่มยา · {formatNumber(stats.count)} รายการบาร์โค้ด</p>
+          </div>
+          <div className="border-l-2 border-warning pl-5">
+            <p className="text-sm font-semibold">รายการที่ต้องติดตาม</p>
+            <p className="mt-2 text-sm text-muted-foreground">หมดสต๊อก <span className="font-semibold text-destructive">{stats.outGroups.length}</span> กลุ่ม · ต่ำกว่าจุดสั่งซื้อ <span className="font-semibold text-warning">{stats.lowGroups.length}</span> กลุ่ม</p>
+            <Link to="/reports" className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary">รายงานและใบเบิก <ChevronRight className="h-4 w-4" /></Link>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* KPI grid */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard title="รายการยาทั้งหมด" numeric={stats.groupCount} format={(n) => formatNumber(n)} sub={`${formatNumber(stats.count)} รายการบาร์โค้ด`} icon={Boxes} tone="primary" delay={50} />
-        <KpiCard title="ความพร้อมจ่าย (Service Level)" numeric={stats.readiness} format={(n) => formatNumber(n, 1) + "%"} sub={`ปกติ ${formatNumber(stats.okGroups)} จาก ${formatNumber(stats.groupCount)} กลุ่มยา`} icon={ShieldCheck} tone="success" delay={100} />
-        <KpiCard title="เบิกจ่ายเดือนนี้" numeric={txStats.monthDisburseValue} format={formatCurrency} sub="มูลค่าเบิกจ่ายสะสมเดือนปัจจุบัน" icon={Banknote} tone="accent" delay={150} />
-        <KpiCard title="รายการเคลื่อนไหววันนี้" numeric={txStats.todayCount} format={(n) => formatNumber(n)} sub="รับเข้า / เบิกจ่าย / ปรับยอด" icon={Activity} tone="primary" delay={200} />
-        <KpiCard title="ใกล้หมด" numeric={stats.lowGroups.length} format={(n) => formatNumber(n)} sub="ต่ำกว่าจุดสั่งซื้อ" icon={AlertTriangle} tone="warning" delay={250} />
-        <KpiCard title="หมดสต๊อก" numeric={stats.outGroups.length} format={(n) => formatNumber(n)} sub="ต้องเบิกด่วน" icon={PackageX} tone="destructive" delay={300} />
-        <KpiCard title="งบเบิกเพิ่มโดยประมาณ" numeric={stats.reorderValue} format={formatCurrency} sub="มูลค่ายาที่ต้องเติมถึงจุดสั่งซื้อ" icon={CalendarClock} tone="warning" delay={350} />
-        <KpiCard title="มูลค่าคงคลัง" numeric={stats.totalValue} format={formatCurrency} sub="ราคาทุนโดยประมาณ" icon={Wallet} tone="accent" delay={400} />
+        <KpiCard title="ความพร้อมจ่าย" numeric={stats.readiness} format={(n) => formatNumber(n, 1) + "%"} sub={`ปกติ ${formatNumber(stats.okGroups)} จาก ${formatNumber(stats.groupCount)} กลุ่มยา`} icon={ShieldCheck} tone="success" delay={50} />
+        <KpiCard title="เบิกจ่ายเดือนนี้" numeric={txStats.monthDisburseValue} format={formatCurrency} sub="จากรายการเคลื่อนไหวล่าสุด 500 รายการ" icon={Banknote} tone="primary" delay={100} />
+        <KpiCard title="งบเบิกเพิ่มโดยประมาณ" numeric={stats.reorderValue} format={formatCurrency} sub="เติมถึงจุดสั่งซื้อขั้นต่ำ" icon={CalendarClock} tone="warning" delay={150} />
+        <KpiCard title="เคลื่อนไหววันนี้" numeric={txStats.todayCount} format={(n) => formatNumber(n)} sub="รับเข้า / เบิกจ่าย / ปรับยอด" icon={Activity} tone="primary" delay={200} />
       </div>
 
       {/* Trend + stock status */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2" style={{ animation: "dash-fade-up 0.5s ease-out 200ms both" }}>
+        <Card className="lg:col-span-2 border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 200ms both" }}>
           <CardHeader>
             <SectionTitle icon={TrendingUp} title="แนวโน้มรับเข้า–เบิกจ่าย 14 วัน" sub="จำนวนหน่วยต่อวัน" />
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={txStats.trend} margin={{ left: 0, right: 10, top: 5 }}>
-                <defs>
-                  <linearGradient id="gDis" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.02} />
-                  </linearGradient>
-                  <linearGradient id="gRec" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--success)" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="var(--success)" stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} interval={1} />
                 <YAxis
@@ -342,15 +312,15 @@ function Dashboard() {
 
                 <RTooltip
                   contentStyle={{
-                    borderRadius: 12,
+                    borderRadius: 8,
                     border: "1px solid var(--border)",
                     background: "var(--card)",
                     fontSize: 12,
                   }}
                   formatter={(value: number, name: string) => [formatNumber(value), name === "disburse" ? "เบิกจ่าย" : "รับเข้า"]}
                 />
-                <Area type="monotone" dataKey="disburse" stroke="var(--primary)" strokeWidth={2.5} fill="url(#gDis)" />
-                <Area type="monotone" dataKey="receive" stroke="var(--success)" strokeWidth={2.5} fill="url(#gRec)" />
+                <Area type="monotone" dataKey="disburse" stroke="var(--primary)" strokeWidth={2.5} fill="var(--primary)" fillOpacity={0.08} />
+                <Area type="monotone" dataKey="receive" stroke="var(--success)" strokeWidth={2.5} fill="var(--success)" fillOpacity={0.06} />
               </AreaChart>
             </ResponsiveContainer>
             <div className="mt-2 flex items-center gap-6 text-xs text-muted-foreground">
@@ -364,7 +334,7 @@ function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card style={{ animation: "dash-fade-up 0.5s ease-out 250ms both" }}>
+        <Card className="border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 250ms both" }}>
           <CardHeader>
             <SectionTitle icon={ShieldCheck} title="สถานะคลัง" sub="จัดกลุ่มตามรหัสยา" />
           </CardHeader>
@@ -378,7 +348,7 @@ function Dashboard() {
                 </Pie>
                 <RTooltip
                   contentStyle={{
-                    borderRadius: 12,
+                    borderRadius: 8,
                     border: "1px solid var(--border)",
                     background: "var(--card)",
                     fontSize: 12,
@@ -402,7 +372,7 @@ function Dashboard() {
       </div>
 
       {/* Top usage */}
-      <Card style={{ animation: "dash-fade-up 0.5s ease-out 300ms both" }}>
+      <Card className="border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 300ms both" }}>
         <CardHeader>
           <SectionTitle icon={TrendingUp} title="อัตราการใช้สูงสุด" sub="7 อันดับแรก (รวมทุกบาร์โค้ดของรหัสยาเดียวกัน)" />
         </CardHeader>
@@ -424,7 +394,7 @@ function Dashboard() {
                 <RTooltip
                   cursor={{ fill: "var(--muted)" }}
                   contentStyle={{
-                    borderRadius: 12,
+                    borderRadius: 8,
                     border: "1px solid var(--border)",
                     background: "var(--card)",
                     fontSize: 12,
@@ -439,7 +409,7 @@ function Dashboard() {
 
       {/* Actionable lists */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card style={{ animation: "dash-fade-up 0.5s ease-out 350ms both" }}>
+        <Card className="border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 350ms both" }}>
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <SectionTitle icon={AlertTriangle} title="ยาที่ต้องเติมสต๊อก" />
             <Link
@@ -451,7 +421,7 @@ function Dashboard() {
           </CardHeader>
           <CardContent className="space-y-2">
             {[...stats.outGroups, ...stats.lowGroups].slice(0, 6).length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">สต๊อกอยู่ในระดับปกติ 🎉</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">สต๊อกอยู่ในระดับปกติ</p>
             ) : (
               [...stats.outGroups, ...stats.lowGroups].slice(0, 6).map((g) => (
                 <div
@@ -477,7 +447,7 @@ function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card style={{ animation: "dash-fade-up 0.5s ease-out 400ms both" }}>
+        <Card className="border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 400ms both" }}>
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <SectionTitle icon={Activity} title="ความเคลื่อนไหวล่าสุด" />
             <Link
