@@ -30,6 +30,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import logoKnifePill from "@/assets/logo-knife-pill.png";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface NavItem {
@@ -122,12 +123,12 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
 function Brand() {
   return (
     <div className="flex items-center gap-3 px-5 py-5">
-      <div className="gradient-brand flex h-10 w-10 items-center justify-center rounded-xl shadow-md">
-        <Pill className="h-5 w-5 text-primary-foreground" strokeWidth={2.3} />
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+        <img src={logoKnifePill} alt="โลโก้สับสต๊อก" className="h-9 w-9 object-contain" />
       </div>
       <div className="leading-tight">
         <p className="text-base font-bold text-sidebar-foreground">
-          สับสต๊อก <span className="text-sidebar-primary">🔪</span>
+          สับสต๊อก
         </p>
         <p className="text-[11px] text-sidebar-foreground/60">ห้องยา รพ.สบปราบ</p>
       </div>
@@ -159,13 +160,13 @@ export function AppShell() {
   return (
     <div className="min-h-screen bg-background">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col bg-sidebar lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
         <Brand />
         <div className="flex-1 overflow-y-auto py-2">
           <NavLinks items={items} />
         </div>
         <div className="border-t border-sidebar-border p-3 text-[11px] text-sidebar-foreground/50">
-          AI-First Serverless • v1.0
+          ห้องยา โรงพยาบาลสบปราบ
         </div>
       </aside>
 
@@ -215,7 +216,7 @@ export function AppShell() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 rounded-full border border-border bg-card py-1 pl-1 pr-2.5 transition-colors hover:bg-accent">
+              <Button variant="outline" className="flex h-auto items-center gap-2 rounded-lg bg-card py-1 pl-1 pr-2.5">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-primary text-xs text-primary-foreground">
                     {initials}
@@ -224,7 +225,7 @@ export function AppShell() {
                 <span className="hidden max-w-28 truncate text-sm font-medium sm:block">
                   {profile?.full_name || profile?.username || "ผู้ใช้"}
                 </span>
-              </button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
@@ -258,7 +259,7 @@ export function AppShell() {
           </p>
         </div>
 
-        <main className="p-4 sm:p-6">
+        <main className="mx-auto max-w-[1440px] p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
 

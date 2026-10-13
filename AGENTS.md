@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep the executive visual theme in shared CSS semantic tokens and the shared AppShell; page code consumes these tokens so future theme changes stay consistent.
+- Export GitHub source snapshots without environment secrets, Git metadata, dependencies or generated build output; preserve remote history with a new parented commit.

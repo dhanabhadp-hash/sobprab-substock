@@ -72,10 +72,10 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-secondary via-background to-secondary px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-2xl bg-card shadow-lg shadow-primary/20 ring-1 ring-primary/10">
+          <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-lg bg-card shadow-sm ring-1 ring-primary/10">
             <img
               src={logoKnifePill}
               alt="โลโก้สับสต๊อก มีดสับแคปซูลยา"
@@ -85,14 +85,14 @@ function AuthPage() {
             />
           </div>
           <h1 className="text-2xl font-bold text-foreground">
-            สับสต๊อก <span className="text-gradient-brand">🔪</span>
+            สับสต๊อก
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             ระบบจัดการเบิกจ่ายยา คลังย่อยห้องยา รพ.สบปราบ
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-xl shadow-primary/5">
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
           <Tabs defaultValue="login">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">เข้าสู่ระบบ</TabsTrigger>
