@@ -11,3 +11,4 @@
 
 - Keep the executive visual theme in shared CSS semantic tokens and the shared AppShell; page code consumes these tokens so future theme changes stay consistent.
 - Export GitHub source snapshots without environment secrets, Git metadata, dependencies or generated build output; preserve remote history with a new parented commit.
+- Enforce shared inventory access through database role policies and validate requisition creator IDs against the authenticated user, so browser controls cannot bypass permissions.
