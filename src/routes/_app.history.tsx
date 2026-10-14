@@ -19,6 +19,16 @@ import {
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/history")({
+  head: () => ({
+    meta: [
+      { title: "ประวัติรับเข้าและจ่ายออก | สับสต๊อก รพ.สบปราบ" },
+      { name: "description", content: "ตรวจสอบประวัติการรับเข้า เบิกจ่าย และปรับยอดคลังยาตามช่วงวันที่" },
+      { property: "og:title", content: "ประวัติรับเข้าและจ่ายออก | สับสต๊อก รพ.สบปราบ" },
+      { property: "og:description", content: "ตรวจสอบประวัติการรับเข้า เบิกจ่าย และปรับยอดคลังยาตามช่วงวันที่" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: HistoryPage,
 });
 

@@ -10,6 +10,16 @@ import { Loader2 } from "lucide-react";
 import logoKnifePill from "@/assets/logo-knife-pill.png";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "เข้าสู่ระบบ | สับสต๊อก รพ.สบปราบ" },
+      { name: "description", content: "เข้าสู่ระบบสับสต๊อกสำหรับบุคลากรห้องยา โรงพยาบาลสบปราบ" },
+      { property: "og:title", content: "เข้าสู่ระบบ | สับสต๊อก รพ.สบปราบ" },
+      { property: "og:description", content: "เข้าสู่ระบบสับสต๊อกสำหรับบุคลากรห้องยา โรงพยาบาลสบปราบ" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AuthPage,
 });
 

@@ -29,6 +29,16 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/users")({
+  head: () => ({
+    meta: [
+      { title: "จัดการผู้ใช้ | สับสต๊อก รพ.สบปราบ" },
+      { name: "description", content: "จัดการข้อมูล ตำแหน่ง สิทธิ์ผู้ใช้งาน และสำรองข้อมูลคลังยา" },
+      { property: "og:title", content: "จัดการผู้ใช้ | สับสต๊อก รพ.สบปราบ" },
+      { property: "og:description", content: "จัดการข้อมูล ตำแหน่ง สิทธิ์ผู้ใช้งาน และสำรองข้อมูลคลังยา" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: UsersPage,
 });
 

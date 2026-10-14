@@ -39,6 +39,16 @@ import {
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/inventory")({
+  head: () => ({
+    meta: [
+      { title: "คลังยา | สับสต๊อก รพ.สบปราบ" },
+      { name: "description", content: "จัดการรายการยา บาร์โค้ด ยอดคงคลังรวม และจุดสั่งซื้อของห้องยา รพ.สบปราบ" },
+      { property: "og:title", content: "คลังยา | สับสต๊อก รพ.สบปราบ" },
+      { property: "og:description", content: "จัดการรายการยา บาร์โค้ด ยอดคงคลังรวม และจุดสั่งซื้อของห้องยา รพ.สบปราบ" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: InventoryPage,
 });
 

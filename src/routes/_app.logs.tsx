@@ -10,6 +10,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/logs")({
+  head: () => ({
+    meta: [
+      { title: "บันทึกระบบ | สับสต๊อก รพ.สบปราบ" },
+      { name: "description", content: "ตรวจสอบบันทึกกิจกรรมและการเปลี่ยนแปลงในระบบคลังยาโดยผู้ดูแล" },
+      { property: "og:title", content: "บันทึกระบบ | สับสต๊อก รพ.สบปราบ" },
+      { property: "og:description", content: "ตรวจสอบบันทึกกิจกรรมและการเปลี่ยนแปลงในระบบคลังยาโดยผู้ดูแล" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: LogsPage,
 });
 

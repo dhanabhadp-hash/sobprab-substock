@@ -39,6 +39,16 @@ import {
 } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_app/scan")({
+  head: () => ({
+    meta: [
+      { title: "สแกนและเบิกจ่ายยา | สับสต๊อก รพ.สบปราบ" },
+      { name: "description", content: "รับเข้า เบิกจ่าย และปรับยอดยาผ่านบาร์โค้ดและตะกร้ารายการยา" },
+      { property: "og:title", content: "สแกนและเบิกจ่ายยา | สับสต๊อก รพ.สบปราบ" },
+      { property: "og:description", content: "รับเข้า เบิกจ่าย และปรับยอดยาผ่านบาร์โค้ดและตะกร้ารายการยา" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: ScanPage,
 });
 

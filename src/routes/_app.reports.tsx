@@ -34,6 +34,16 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_app/reports")({
+  head: () => ({
+    meta: [
+      { title: "รายงานและใบเบิกยา | สับสต๊อก รพ.สบปราบ" },
+      { name: "description", content: "รายงานคลังยา การเคลื่อนไหว และประวัติใบเบิกยาประจำสัปดาห์" },
+      { property: "og:title", content: "รายงานและใบเบิกยา | สับสต๊อก รพ.สบปราบ" },
+      { property: "og:description", content: "รายงานคลังยา การเคลื่อนไหว และประวัติใบเบิกยาประจำสัปดาห์" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: ReportsPage,
 });
 
