@@ -8,6 +8,13 @@
       "when": 1790301056308,
       "tag": "0000_import_aliases_and_batches",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791943357038,
+      "tag": "0001_restrict_shared_inventory_to_assigned_roles",
+      "breakpoints": true
     }
   ]
 }

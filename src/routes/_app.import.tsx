@@ -22,6 +22,10 @@ export const Route = createFileRoute("/_app/import")({
     meta: [
       { title: "นำเข้าไฟล์รับยา — สับบบบสต๊อก" },
       { name: "description", content: "นำเข้าไฟล์ Excel/CSV รับยาเข้าคลัง จับคู่ยาอัตโนมัติ และเรียกคืนรอบนำเข้าได้" },
+      { property: "og:title", content: "นำเข้าไฟล์รับยา | สับสต๊อก รพ.สบปราบ" },
+      { property: "og:description", content: "ตรวจสอบการจับคู่รายการยาและจำนวนก่อนรับเข้าคลัง พร้อมประวัติการนำเข้าและเรียกคืน" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ImportPage,
