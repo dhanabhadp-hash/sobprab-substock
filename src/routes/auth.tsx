@@ -82,7 +82,7 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-primary-strong px-4 py-10">
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-lg bg-card shadow-sm ring-1 ring-primary/10">
@@ -94,15 +94,15 @@ function AuthPage() {
               className="h-16 w-16 object-contain"
             />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-3xl font-bold text-primary-foreground">
             สับสต๊อก
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-primary-foreground/90">
             ระบบจัดการเบิกจ่ายยา คลังย่อยห้องยา รพ.สบปราบ
           </p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm sm:p-8">
           <Tabs defaultValue="login">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">เข้าสู่ระบบ</TabsTrigger>
