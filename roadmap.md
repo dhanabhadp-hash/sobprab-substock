@@ -1,4 +1,5 @@
 # Tasks
+- [ ] Apply attached Command Center design to shared theme, navigation, dashboard, and sign-in; verify desktop and mobile views.
 - [x] Apply attached executive UI style across shared chrome and dashboard.
 - [x] Complete unique titles and sharing metadata on all content pages; verify signed-out app opens without runtime errors.
 - [ ] Verify authenticated dashboard (blocked: admin session approval declined).
