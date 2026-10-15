@@ -149,7 +149,8 @@
 .executive-dashboard > section { padding-top: 8px; }
 .executive-dashboard [data-slot="card-header"] { padding: 24px 24px 16px; }
 .executive-dashboard [data-slot="card-content"] { padding-left: 24px; padding-right: 24px; }
-.executive-dashboard .analytics-panel { border-top: 1px solid var(--border); padding-top: 8px; }
+.executive-dashboard .analytics-panel { min-width: 0; border-top: 1px solid var(--border); padding-top: 8px; }
+.executive-dashboard .analytics-panel [data-slot="card-header"] { flex-wrap: wrap; gap: 12px; }
 @media (max-width: 639px) {
   .executive-dashboard [data-slot="card-header"] { padding: 16px 0; }
   .executive-dashboard [data-slot="card-content"] { padding-left: 0; padding-right: 0; }

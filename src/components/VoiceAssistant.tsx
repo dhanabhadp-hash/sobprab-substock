@@ -203,9 +203,9 @@ export function VoiceAssistant({ medicines, onConfirm, onEdit }: Props) {
       </div>
 
       {disambig && (
-        <Card className="border-amber-400/60 bg-amber-50/50 dark:bg-amber-950/20">
+        <Card className="border-warning/60 bg-warning/5">
           <CardContent className="space-y-3 p-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
+            <div className="flex items-center gap-2 text-sm font-medium text-warning">
               <HelpCircle className="h-4 w-4" />
               พบยาใกล้เคียงหลายรายการ กรุณายืนยัน
             </div>
