@@ -120,7 +120,7 @@ function KpiCard({
   const t = tones[tone];
   return (
     <Card
-      className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm"
+      className="metric-card group relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm"
       style={{ animation: `dash-fade-up 0.5s ease-out ${delay}ms both` }}
     >
       <div className={cn("absolute inset-x-0 top-0 h-0.5", t.bar)} />
@@ -135,7 +135,7 @@ function KpiCard({
         </div>
         <div className="min-w-0">
           <p className="text-sm leading-snug text-muted-foreground">{title}</p>
-          <p className="text-2xl font-bold tabular-nums  text-foreground">{format(v)}</p>
+          <p className="break-words text-xl font-bold tabular-nums text-foreground">{format(v)}</p>
           {sub && <p className="text-xs leading-snug text-muted-foreground">{sub}</p>}
 
         </div>
@@ -291,7 +291,7 @@ function Dashboard() {
 
       {/* Trend + stock status */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2 border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 200ms both" }}>
+        <Card className="analytics-panel lg:col-span-2 rounded-none border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 200ms both" }}>
           <CardHeader>
             <SectionTitle icon={TrendingUp} title="แนวโน้มรับเข้า–เบิกจ่าย 14 วัน" sub="จำนวนหน่วยต่อวัน" />
           </CardHeader>
@@ -334,7 +334,7 @@ function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 250ms both" }}>
+        <Card className="analytics-panel rounded-none border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 250ms both" }}>
           <CardHeader>
             <SectionTitle icon={ShieldCheck} title="สถานะคลัง" sub="จัดกลุ่มตามรหัสยา" />
           </CardHeader>
@@ -372,7 +372,7 @@ function Dashboard() {
       </div>
 
       {/* Top usage */}
-      <Card className="border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 300ms both" }}>
+      <Card className="analytics-panel rounded-none border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 300ms both" }}>
         <CardHeader>
           <SectionTitle icon={TrendingUp} title="อัตราการใช้สูงสุด" sub="7 อันดับแรก (รวมทุกบาร์โค้ดของรหัสยาเดียวกัน)" />
         </CardHeader>
@@ -400,7 +400,7 @@ function Dashboard() {
                     fontSize: 12,
                   }}
                 />
-                <Bar dataKey="value" radius={[0, 6, 6, 0]} fill="var(--primary)" />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} fill="var(--primary)" fillOpacity={0.6} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -409,7 +409,7 @@ function Dashboard() {
 
       {/* Actionable lists */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 350ms both" }}>
+        <Card className="analytics-panel rounded-none border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 350ms both" }}>
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <SectionTitle icon={AlertTriangle} title="ยาที่ต้องเติมสต๊อก" />
             <Link
@@ -447,7 +447,7 @@ function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 400ms both" }}>
+        <Card className="analytics-panel rounded-none border-0 bg-transparent shadow-none" style={{ animation: "dash-fade-up 0.5s ease-out 400ms both" }}>
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <SectionTitle icon={Activity} title="ความเคลื่อนไหวล่าสุด" />
             <Link

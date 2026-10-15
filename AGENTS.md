@@ -9,6 +9,6 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Keep the executive visual theme in shared CSS semantic tokens and the shared AppShell; page code consumes these tokens so future theme changes stay consistent.
+- Keep the selected visual theme in shared CSS semantic tokens and AppShell; use separate shell foreground/status tokens so dark chrome remains readable independently of light workspace and dark-mode surfaces.
 - Export GitHub source snapshots without environment secrets, Git metadata, dependencies or generated build output; preserve remote history with a new parented commit.
 - Enforce shared inventory access through database role policies and validate requisition creator IDs against the authenticated user, so browser controls cannot bypass permissions.

@@ -123,7 +123,7 @@ function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => 
 function Brand() {
   return (
     <div className="flex items-center gap-3 px-5 py-5">
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-card">
         <img src={logoKnifePill} alt="โลโก้สับสต๊อก" className="h-9 w-9 object-contain" />
       </div>
       <div className="leading-tight">
@@ -160,7 +160,7 @@ export function AppShell() {
   return (
     <div className="min-h-screen bg-background">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
+      <aside className="command-shell fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
         <Brand />
         <div className="flex-1 overflow-y-auto py-2">
           <NavLinks items={items} />
@@ -172,7 +172,7 @@ export function AppShell() {
 
       {/* Mobile drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-72 border-0 bg-sidebar p-0">
+        <SheetContent side="left" className="command-shell w-64 border-sidebar-border bg-sidebar p-0 text-sidebar-foreground">
           <Brand />
           <div className="py-2">
             <NavLinks items={items} onNavigate={() => setMobileOpen(false)} />
@@ -182,22 +182,23 @@ export function AppShell() {
 
       <div className="lg:pl-64">
         {/* Top bar */}
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
+        <header className="command-shell sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-sidebar-border bg-sidebar px-4 text-sidebar-foreground sm:px-6">
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground lg:hidden"
+            aria-label="เปิดเมนู"
             onClick={() => setMobileOpen(true)}
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <h1 className="flex-1 truncate text-lg font-semibold text-foreground">{title}</h1>
+          <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-sidebar-foreground sm:text-lg">{title}</h1>
 
           <div
             className={cn(
               "hidden items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium sm:flex",
               online
-                ? "bg-success/10 text-success"
+                 ? "bg-shell-status/10 text-shell-status"
                 : "bg-destructive/10 text-destructive",
             )}
           >
@@ -206,17 +207,17 @@ export function AppShell() {
           </div>
 
           <div className="hidden text-right leading-tight md:block">
-            <p className="text-sm font-semibold tabular-nums text-foreground">
+            <p className="text-sm font-semibold tabular-nums text-sidebar-foreground">
               {now.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[11px] text-sidebar-foreground/60">
               {now.toLocaleDateString("th-TH", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
             </p>
           </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex h-auto items-center gap-2 rounded-lg bg-card py-1 pl-1 pr-2.5">
+              <Button variant="outline" aria-label="เมนูบัญชีผู้ใช้" className="flex h-auto items-center gap-2 rounded-lg border-sidebar-border bg-sidebar-accent py-1 pl-1 pr-2.5 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-primary text-xs text-primary-foreground">
                     {initials}
@@ -259,7 +260,7 @@ export function AppShell() {
           </p>
         </div>
 
-        <main className="mx-auto max-w-[1440px] p-4 sm:p-6 lg:p-8">
+        <main className="mx-auto max-w-[1400px] p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
 
