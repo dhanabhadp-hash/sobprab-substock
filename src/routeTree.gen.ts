@@ -9,25 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppIndexRouteImport } from './routes/_app.index'
-import { Route as AppUsersRouteImport } from './routes/_app.users'
-import { Route as AppScanRouteImport } from './routes/_app.scan'
-import { Route as AppReportsRouteImport } from './routes/_app.reports'
-import { Route as AppLogsRouteImport } from './routes/_app.logs'
-import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
-import { Route as AppImportRouteImport } from './routes/_app.import'
-import { Route as AppHistoryRouteImport } from './routes/_app.history'
 import { Route as AppBarcodesRouteImport } from './routes/_app.barcodes'
+import { Route as AppHistoryRouteImport } from './routes/_app.history'
+import { Route as AppImportRouteImport } from './routes/_app.import'
+import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
+import { Route as AppLogsRouteImport } from './routes/_app.logs'
+import { Route as AppReportsRouteImport } from './routes/_app.reports'
+import { Route as AppScanRouteImport } from './routes/_app.scan'
+import { Route as AppUsersRouteImport } from './routes/_app.users'
 
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -35,34 +35,9 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppUsersRoute = AppUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppScanRoute = AppScanRouteImport.update({
-  id: '/scan',
-  path: '/scan',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppReportsRoute = AppReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLogsRoute = AppLogsRouteImport.update({
-  id: '/logs',
-  path: '/logs',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppInventoryRoute = AppInventoryRouteImport.update({
-  id: '/inventory',
-  path: '/inventory',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppImportRoute = AppImportRouteImport.update({
-  id: '/import',
-  path: '/import',
+const AppBarcodesRoute = AppBarcodesRouteImport.update({
+  id: '/barcodes',
+  path: '/barcodes',
   getParentRoute: () => AppRoute,
 } as any)
 const AppHistoryRoute = AppHistoryRouteImport.update({
@@ -70,9 +45,34 @@ const AppHistoryRoute = AppHistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => AppRoute,
 } as any)
-const AppBarcodesRoute = AppBarcodesRouteImport.update({
-  id: '/barcodes',
-  path: '/barcodes',
+const AppImportRoute = AppImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInventoryRoute = AppInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLogsRoute = AppLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppScanRoute = AppScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppUsersRoute = AppUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -161,18 +161,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_app': {
       id: '/_app'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/': {
@@ -182,46 +182,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/users': {
-      id: '/_app/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof AppUsersRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/scan': {
-      id: '/_app/scan'
-      path: '/scan'
-      fullPath: '/scan'
-      preLoaderRoute: typeof AppScanRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/reports': {
-      id: '/_app/reports'
-      path: '/reports'
-      fullPath: '/reports'
-      preLoaderRoute: typeof AppReportsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/logs': {
-      id: '/_app/logs'
-      path: '/logs'
-      fullPath: '/logs'
-      preLoaderRoute: typeof AppLogsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/inventory': {
-      id: '/_app/inventory'
-      path: '/inventory'
-      fullPath: '/inventory'
-      preLoaderRoute: typeof AppInventoryRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/import': {
-      id: '/_app/import'
-      path: '/import'
-      fullPath: '/import'
-      preLoaderRoute: typeof AppImportRouteImport
+    '/_app/barcodes': {
+      id: '/_app/barcodes'
+      path: '/barcodes'
+      fullPath: '/barcodes'
+      preLoaderRoute: typeof AppBarcodesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/history': {
@@ -231,11 +196,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHistoryRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/barcodes': {
-      id: '/_app/barcodes'
-      path: '/barcodes'
-      fullPath: '/barcodes'
-      preLoaderRoute: typeof AppBarcodesRouteImport
+    '/_app/import': {
+      id: '/_app/import'
+      path: '/import'
+      fullPath: '/import'
+      preLoaderRoute: typeof AppImportRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/inventory': {
+      id: '/_app/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AppInventoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/logs': {
+      id: '/_app/logs'
+      path: '/logs'
+      fullPath: '/logs'
+      preLoaderRoute: typeof AppLogsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/reports': {
+      id: '/_app/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/scan': {
+      id: '/_app/scan'
+      path: '/scan'
+      fullPath: '/scan'
+      preLoaderRoute: typeof AppScanRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/users': {
+      id: '/_app/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AppUsersRouteImport
       parentRoute: typeof AppRoute
     }
   }
